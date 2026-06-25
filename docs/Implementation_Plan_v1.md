@@ -12,15 +12,15 @@ A context-engineering-based consultant produces better AI opportunity assessment
 
 ### Therefore
 
-Nous ne construisons pas, dans un premier temps :
+For now, we are not building:
 
 - multi-tenant
 - SSO
-- permissions complexes
-- knowledge graph distribue
-- dashboard enterprise
+- complex permissions
+- distributed knowledge graph
+- enterprise dashboard
 
-Nous construisons : un consultant IA credible.
+We are building: a credible AI consultant.
 
 ## 2. Product Development Roadmap
 
@@ -395,13 +395,13 @@ Recommendation is traceable to:
 
 ## 11. Portfolio Positioning
 
-Ce projet ne doit pas etre presente comme :
+This project must not be presented as:
 
 - AI Agent
 - RAG System
 - Chatbot
 
-Il doit etre presente comme :
+It must be presented as:
 
 > Context-Engineering-Based AI Business Opportunity Consultant
 > for AI Opportunity Discovery, Qualification and Prioritization
