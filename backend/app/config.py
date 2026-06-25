@@ -26,6 +26,15 @@ class Settings(BaseSettings):
     # Database. Default points at the docker-compose Postgres service.
     database_url: str = "postgresql+psycopg://aiboc:aiboc@localhost:5432/aiboc"
 
+    # LLM (Anthropic Claude). The key is read from the environment; never commit
+    # it. The interview engine uses Claude for context extraction and questioning.
+    anthropic_api_key: str | None = None
+    llm_model: str = "claude-opus-4-8"
+
+    # Interview engine. The loop keeps asking until context completeness reaches
+    # this threshold, then hands off to structuring (TRD section 4.3).
+    context_completeness_threshold: float = 1.0
+
 
 @lru_cache
 def get_settings() -> Settings:
