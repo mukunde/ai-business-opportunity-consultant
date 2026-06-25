@@ -12,6 +12,8 @@ dependencies = [
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
     "psycopg[binary]>=3.2",
+    "langgraph>=0.2",
+    "anthropic>=0.40",
 ]
 
 [dependency-groups]
@@ -43,6 +45,12 @@ disallow_untyped_defs = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+# LangGraph's add_node/StateGraph generics don't line up with mypy's overload
+# resolution for our TypedDict state; the node logic itself is type-checked.
+[[tool.mypy.overrides]]
+module = "app.interview.graph"
+disable_error_code = ["arg-type", "call-overload"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
