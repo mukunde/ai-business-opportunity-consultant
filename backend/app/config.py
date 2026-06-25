@@ -28,6 +28,9 @@ class Settings(BaseSettings):
 
     # LLM (Anthropic Claude). The key is read from the environment; never commit
     # it. The interview engine uses Claude for context extraction and questioning.
+    # Set LLM_PROVIDER=fake to run the whole flow offline with a deterministic
+    # stub (no API key, no cost) - useful before wiring real billing.
+    llm_provider: str = "claude"  # "claude" | "fake"
     anthropic_api_key: str | None = None
     llm_model: str = "claude-opus-4-8"
 

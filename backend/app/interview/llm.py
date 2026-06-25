@@ -118,7 +118,16 @@ class ClaudeClient:
 
 
 def get_llm() -> LLMClient:
-    """FastAPI dependency: the configured production LLM client."""
+    """FastAPI dependency: the LLM client selected by ``LLM_PROVIDER``.
+
+    ``fake`` returns the deterministic offline stub (no API key); anything else
+    returns the real Claude client.
+    """
     from app.config import get_settings
 
-    return ClaudeClient(get_settings())
+    settings = get_settings()
+    if settings.llm_provider == "fake":
+        from app.interview.fake import FakeLLM
+
+        return FakeLLM()
+    return ClaudeClient(settings)

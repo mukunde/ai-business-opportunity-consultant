@@ -1,15 +1,17 @@
-"""Deterministic LLM double for interview tests (no API key, no network)."""
+"""A deterministic LLM double.
+
+Used both by the test suite and by the ``LLM_PROVIDER=fake`` dev mode, so the
+whole interview flow can be exercised end to end without an Anthropic API key.
+It fills one context slot per answer and phrases canned questions, so an
+interview reaches full completeness after exactly len(SLOT_KEYS) answers.
+"""
 
 from app.interview.llm import ExtractedContext, StructuredOpportunity
 from app.interview.state import SLOT_KEYS, SLOT_LABELS, OpportunityState
 
 
 class FakeLLM:
-    """Fills one context slot per answer and phrases canned questions.
-
-    Each answer resolves the first still-missing slot, so an interview reaches
-    full completeness after exactly len(SLOT_KEYS) answers.
-    """
+    """Deterministic, offline implementation of LLMClient."""
 
     def extract_context(
         self, raw_input: str, latest_answer: str, known: dict[str, str]
