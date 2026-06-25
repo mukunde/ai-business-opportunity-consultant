@@ -1,0 +1,23 @@
+# Local development stack. For now just Postgres; the API and frontend are run
+# directly (uv / npm) during early development and can be containerized later.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aiboc-db
+    environment:
+      POSTGRES_USER: aiboc
+      POSTGRES_PASSWORD: aiboc
+      POSTGRES_DB: aiboc
+    ports:
+      - "5432:5432"
+    volumes:
+      - aiboc_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiboc -d aiboc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  aiboc_pgdata:
