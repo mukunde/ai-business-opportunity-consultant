@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.context.projection import project_context
 from app.interview.graph import run_turn
 from app.interview.llm import LLMClient
 from app.interview.state import from_dict, initial_state
@@ -94,6 +95,7 @@ def start_interview(
     )
 
     opportunity.status = OpportunityStatus.INTERVIEW_ACTIVE
+    project_context(db, opportunity.id, state)
     db.commit()
     db.refresh(session)
     return session
@@ -125,6 +127,7 @@ def continue_interview(
         if opportunity is not None:
             opportunity.status = OpportunityStatus.STRUCTURED
 
+    project_context(db, session.opportunity_id, state)
     db.commit()
     db.refresh(session)
     return session
