@@ -10,9 +10,9 @@ from sqlalchemy.pool import StaticPool
 
 from app.db.base import Base
 from app.db.session import get_db
+from app.interview.fake import FakeLLM
 from app.interview.llm import get_llm
 from app.main import app  # importing the app also registers all ORM models
-from tests.fakes import FakeLLM
 
 
 @pytest.fixture
