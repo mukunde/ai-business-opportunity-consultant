@@ -19,6 +19,7 @@ from app.models.interview import (
 )
 from app.models.opportunity import Opportunity, OpportunityStatus
 from app.models.recommendation import Recommendation, RecommendationType
+from app.models.reporting import DetailedAssessment, ExecutiveSummary
 from app.models.scoring import ScoreSnapshot
 
 __all__ = [
@@ -27,6 +28,8 @@ __all__ = [
     "ScoreSnapshot",
     "Recommendation",
     "RecommendationType",
+    "ExecutiveSummary",
+    "DetailedAssessment",
     "InterviewSession",
     "InterviewStatus",
     "ConversationTurn",
