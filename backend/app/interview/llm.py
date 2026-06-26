@@ -9,13 +9,17 @@ Anthropic Python SDK patterns from the claude-api reference (model
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import BaseModel
 
 from app.config import Settings
 from app.interview import prompts
 from app.interview.state import SLOT_LABELS, SLOT_REASONS, OpportunityState
+
+# Edge types the model may infer between context elements. CONTRADICTS is handled
+# through the dedicated contradictions channel, so it is excluded here.
+SemanticRelation = Literal["SUPPORTS", "DEPENDS_ON", "REQUIRES"]
 
 
 class ExtractedContext(BaseModel):
@@ -35,6 +39,42 @@ class StructuredOpportunity(BaseModel):
     summary: str
 
 
+class ContextElement(BaseModel):
+    """One context node, passed to the model for relationship inference.
+
+    ``key`` is an opaque handle (e.g. ``n0``) the model echoes back in edges, so
+    it never has to deal with database UUIDs.
+    """
+
+    key: str
+    label: str
+    value: str
+    kind: str  # FACT | ASSUMPTION
+
+
+class InferredRelationship(BaseModel):
+    """A directed, typed edge the model inferred between two elements."""
+
+    source_key: str
+    target_key: str
+    relation_type: SemanticRelation
+
+
+class InferredContradiction(BaseModel):
+    """A conflict the model detected between two elements, with its reasoning."""
+
+    node_a_key: str
+    node_b_key: str
+    explanation: str
+
+
+class InferredGraph(BaseModel):
+    """The model's semantic reading of the collected context."""
+
+    relationships: list[InferredRelationship] = []
+    contradictions: list[InferredContradiction] = []
+
+
 class LLMClient(Protocol):
     """What the interview nodes need from a language model."""
 
@@ -50,6 +90,10 @@ class LLMClient(Protocol):
 
     def structure(self, state: OpportunityState) -> StructuredOpportunity:
         """Synthesize the collected context into a structured opportunity."""
+        ...
+
+    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
+        """Reason over the collected context: typed edges and contradictions."""
         ...
 
 
@@ -111,6 +155,27 @@ class ClaudeClient:
             system=prompts.SYNTHESIZER_SYSTEM,
             messages=[{"role": "user", "content": user}],
             output_format=StructuredOpportunity,
+        )
+        result = response.parsed_output
+        assert result is not None
+        return result
+
+    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
+        rendered = "\n".join(
+            f"- {e.key} [{e.kind}] {e.label}: {e.value or '(no value)'}" for e in elements
+        )
+        user = (
+            "Context elements (reference them by their key):\n"
+            f"{rendered}\n\n"
+            "Infer the semantic relationships and any contradictions between them."
+        )
+        response = self._client.messages.parse(
+            model=self._model,
+            max_tokens=1536,
+            thinking={"type": "adaptive"},
+            system=prompts.RELATIONSHIP_SYSTEM,
+            messages=[{"role": "user", "content": user}],
+            output_format=InferredGraph,
         )
         result = response.parsed_output
         assert result is not None

@@ -47,6 +47,7 @@ class ContradictionRead(BaseModel):
     id: uuid.UUID
     node_a_id: uuid.UUID | None
     node_b_id: uuid.UUID | None
+    description: str | None
     status: ContradictionStatus
     resolution_note: str | None
 
