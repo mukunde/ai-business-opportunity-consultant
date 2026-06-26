@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -99,12 +100,26 @@ export function Dashboard() {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">Opportunities</CardTitle>
+          {opportunities.data ? (
+            <span className="text-muted-foreground text-sm tabular-nums">
+              {opportunities.data.length}
+            </span>
+          ) : null}
         </CardHeader>
         <CardContent>
           {opportunities.isLoading ? (
-            <p className="text-muted-foreground text-sm">Loading...</p>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              ))}
+            </div>
           ) : opportunities.isError ? (
             <p className="text-destructive text-sm">
               Could not reach the API. Is the backend running on{" "}
@@ -145,9 +160,13 @@ export function Dashboard() {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-muted-foreground text-sm">
-              No opportunities yet. Create your first one above.
-            </p>
+            <div className="py-10 text-center">
+              <p className="text-sm font-medium">No opportunities yet</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Create one above to start a context-driven interview, then score
+                it and get a recommendation.
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
