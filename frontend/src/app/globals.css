@@ -133,8 +133,18 @@
   }
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
   }
   html {
     @apply font-sans;
+  }
+  /* Premium-by-restraint: deliberate heading tracking, refined selection. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.011em;
+  }
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 22%, transparent);
   }
 }

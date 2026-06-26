@@ -69,24 +69,29 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
   const nodes = context.data?.nodes ?? [];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(190px,22%)_1fr_minmax(210px,28%)]">
-      <aside className="bg-card order-2 rounded-xl border p-4 lg:order-1 lg:sticky lg:top-20 lg:self-start">
+    <div className="grid gap-5 lg:grid-cols-[minmax(190px,22%)_1fr_minmax(210px,28%)]">
+      <aside className="bg-card order-2 rounded-xl border p-5 lg:order-1 lg:sticky lg:top-20 lg:self-start">
         <ContextStatusPanel
           completeness={context.data?.completeness ?? null}
           nodes={nodes}
         />
       </aside>
 
-      <section className="bg-card order-1 flex h-[70vh] flex-col rounded-xl border p-4 lg:order-2">
-        <ConversationPanel
-          turns={session.turns}
-          completed={session.status === "COMPLETED"}
-          onSend={answer.mutate}
-          sending={answer.isPending}
-        />
+      <section className="bg-card order-1 flex h-[72vh] flex-col rounded-xl border p-5 lg:order-2">
+        <h2 className="text-muted-foreground mb-4 shrink-0 text-xs font-medium tracking-wide uppercase">
+          Conversation
+        </h2>
+        <div className="min-h-0 flex-1">
+          <ConversationPanel
+            turns={session.turns}
+            completed={session.status === "COMPLETED"}
+            onSend={answer.mutate}
+            sending={answer.isPending}
+          />
+        </div>
       </section>
 
-      <aside className="bg-card order-3 rounded-xl border p-4 lg:sticky lg:top-20 lg:self-start">
+      <aside className="bg-card order-3 rounded-xl border p-5 lg:sticky lg:top-20 lg:self-start">
         <OpportunityModelPanel nodes={nodes} />
       </aside>
     </div>
