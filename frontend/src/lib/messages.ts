@@ -156,4 +156,17 @@ export const fr: Record<string, string> = {
   "Executive summary": "Résumé exécutif",
   "Detailed assessment": "Évaluation détaillée",
   "Request failed": "Échec de la requête",
+
+  // Versioning
+  "Version history": "Historique des versions",
+  "Save version": "Enregistrer la version",
+  "Saving…": "Enregistrement…",
+  "Version saved": "Version enregistrée",
+  "Label this version (optional)": "Nommer cette version (optionnel)",
+  "Save the current assessment to capture a comparable snapshot.":
+    "Enregistrez l'évaluation actuelle pour capturer un instantané comparable.",
+  Score: "Score",
+  "Not scored": "Non scorée",
+  Since: "Depuis",
+  "No change since": "Aucun changement depuis",
 };

@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 
 import { Cockpit } from "@/components/cockpit/cockpit";
 import { DecisionPanel } from "@/components/decision/decision-panel";
+import { VersionHistory } from "@/components/decision/version-history";
 import { StatusBadge } from "@/components/status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,6 +94,7 @@ export default function OpportunityDetailPage() {
             {t("Decision")}
           </h2>
           <DecisionPanel opportunityId={id} />
+          <VersionHistory opportunityId={id} />
         </div>
       ) : null}
     </div>

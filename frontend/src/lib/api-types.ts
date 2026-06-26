@@ -232,10 +232,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/opportunities/{opportunity_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Versions
+         * @description Return the opportunity's version history, newest first.
+         */
+        get: operations["list_versions_opportunities__opportunity_id__versions_get"];
+        put?: never;
+        /**
+         * Create Version
+         * @description Freeze the current assessment as a new numbered version.
+         */
+        post: operations["create_version_opportunities__opportunity_id__versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/opportunities/{opportunity_id}/versions/{version_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Version
+         * @description Return a single version of an opportunity.
+         */
+        get: operations["get_version_opportunities__opportunity_id__versions__version_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AssessmentSnapshot
+         * @description The decision state captured in a version, mirroring the report inputs.
+         */
+        AssessmentSnapshot: {
+            /** Title */
+            title: string;
+            /** Problem Statement */
+            problem_statement?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /**
+             * Facts
+             * @default []
+             */
+            facts: components["schemas"]["SnapshotFact"][];
+            /**
+             * Assumptions
+             * @default []
+             */
+            assumptions: string[];
+            /**
+             * Unknowns
+             * @default []
+             */
+            unknowns: string[];
+            /** Completeness */
+            completeness?: {
+                [key: string]: number;
+            } | null;
+            /** Score */
+            score?: {
+                [key: string]: number;
+            } | null;
+            /** Recommendation Type */
+            recommendation_type?: string | null;
+            /** Recommendation Rationale */
+            recommendation_rationale?: string | null;
+        };
         /** CompletenessRead */
         CompletenessRead: {
             /** Business Context Score */
@@ -595,6 +678,13 @@ export interface components {
              */
             created_at: string;
         };
+        /** SnapshotFact */
+        SnapshotFact: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
         /** TurnRead */
         TurnRead: {
             role: components["schemas"]["TurnRole"];
@@ -626,6 +716,32 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VersionCreate
+         * @description Optional label when cutting a new version.
+         */
+        VersionCreate: {
+            /** Note */
+            note?: string | null;
+        };
+        /** VersionRead */
+        VersionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Version Number */
+            version_number: number;
+            /** Note */
+            note: string | null;
+            snapshot: components["schemas"]["AssessmentSnapshot"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
     };
     responses: never;
@@ -1158,6 +1274,104 @@ export interface operations {
                 };
                 content: {
                     "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_versions_opportunities__opportunity_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_version_opportunities__opportunity_id__versions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["VersionCreate"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_version_opportunities__opportunity_id__versions__version_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionRead"];
                 };
             };
             /** @description Validation Error */

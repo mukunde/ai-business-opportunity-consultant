@@ -9,6 +9,7 @@ from app.api.routes import (
     recommendation,
     reporting,
     scoring,
+    versions,
 )
 
 api_router = APIRouter()
@@ -18,5 +19,6 @@ api_router.include_router(context.router)
 api_router.include_router(scoring.router)
 api_router.include_router(recommendation.router)
 api_router.include_router(reporting.router)
+api_router.include_router(versions.router)
 
 __all__ = ["api_router"]

@@ -20,6 +20,8 @@ export type ScoreInput = components["schemas"]["ScoreInput"];
 export type Recommendation = components["schemas"]["RecommendationRead"];
 export type RecommendationType = Recommendation["type"];
 export type ReportBundle = components["schemas"]["ReportBundle"];
+export type Version = components["schemas"]["VersionRead"];
+export type AssessmentSnapshot = components["schemas"]["AssessmentSnapshot"];
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -111,4 +113,12 @@ export const api = {
   // Direct link to the server-rendered PDF (a plain GET the browser downloads),
   // so it is an <a href> rather than an apiFetch JSON call.
   reportPdfUrl: (id: string) => `${API_BASE}/opportunities/${id}/report.pdf`,
+
+  listVersions: (id: string) =>
+    apiFetch<Version[]>(`/opportunities/${id}/versions`),
+  createVersion: (id: string, note?: string) =>
+    apiFetch<Version>(`/opportunities/${id}/versions`, {
+      method: "POST",
+      body: JSON.stringify({ note: note ?? null }),
+    }),
 };
