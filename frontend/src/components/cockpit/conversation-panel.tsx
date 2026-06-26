@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,6 +50,12 @@ export function ConversationPanel({
   sending: boolean;
 }) {
   const [draft, setDraft] = useState("");
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Keep the scroll pinned to the latest message as the conversation grows.
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [turns.length, sending]);
 
   const submit = () => {
     const value = draft.trim();
@@ -77,6 +83,7 @@ export function ConversationPanel({
         {sending ? (
           <p className="text-muted-foreground text-sm">Consultant is thinking…</p>
         ) : null}
+        <div ref={bottomRef} />
       </div>
 
       <div className="mt-4 border-t pt-4">
