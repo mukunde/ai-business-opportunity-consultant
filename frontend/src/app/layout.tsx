@@ -47,13 +47,14 @@ export default function RootLayout({
         <Providers>
           <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-30 border-b backdrop-blur">
             <div className="flex h-14 items-center gap-2 px-6">
-              <Link href="/" className="flex items-center gap-2.5">
+              <Link href="/" className="flex items-baseline gap-2.5">
                 <Image
                   src="/logo.png"
                   alt="Alfred AI"
                   width={23}
                   height={30}
                   priority
+                  className="mix-blend-multiply"
                 />
                 <span
                   className="text-base font-semibold tracking-tight"
