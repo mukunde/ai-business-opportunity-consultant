@@ -1,4 +1,7 @@
+"use client";
+
 import { InfoTip } from "@/components/info-tip";
+import { useT } from "@/lib/i18n";
 import type { Completeness, ContextNode } from "@/lib/api";
 
 function Ring({ value }: { value: number }) {
@@ -71,12 +74,13 @@ export function ContextStatusPanel({
   completeness: Completeness | null;
   nodes: ContextNode[];
 }) {
+  const t = useT();
   const missing = nodes.filter((n) => n.type === "UNKNOWN");
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          Context completeness
+          {t("Context completeness")}
         </h2>
         <div className="mt-3 flex justify-center">
           <Ring value={completeness?.overall_score ?? 0} />
@@ -85,30 +89,38 @@ export function ContextStatusPanel({
 
       <div className="space-y-3">
         <Bar
-          label="Business context"
+          label={t("Business context")}
           value={completeness?.business_context_score ?? 0}
-          tip="Do we understand the business problem and who owns it? Built from business volume and the process owner."
+          tip={t(
+            "Do we understand the business problem and who owns it? Built from business volume and the process owner.",
+          )}
         />
         <Bar
-          label="Process understanding"
+          label={t("Process understanding")}
           value={completeness?.process_understanding_score ?? 0}
-          tip="Do we understand how the current process works? Built from the average handling time."
+          tip={t(
+            "Do we understand how the current process works? Built from the average handling time.",
+          )}
         />
         <Bar
-          label="Data readiness"
+          label={t("Data readiness")}
           value={completeness?.data_readiness_score ?? 0}
-          tip="Is there data available to build the AI on? Drives feasibility and time to value; its absence raises risk."
+          tip={t(
+            "Is there data available to build the AI on? Drives feasibility and time to value; its absence raises risk.",
+          )}
         />
         <Bar
-          label="ROI readiness"
+          label={t("ROI readiness")}
           value={completeness?.roi_readiness_score ?? 0}
-          tip="Can we estimate the return? Needs both business volume and handling time to size the savings."
+          tip={t(
+            "Can we estimate the return? Needs both business volume and handling time to size the savings.",
+          )}
         />
       </div>
 
       <div>
         <h2 className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-          Missing context
+          {t("Missing context")}
         </h2>
         {missing.length > 0 ? (
           <ul className="mt-3 space-y-2">
@@ -121,7 +133,7 @@ export function ContextStatusPanel({
           </ul>
         ) : (
           <p className="text-muted-foreground mt-3 text-sm">
-            All required context collected.
+            {t("All required context collected.")}
           </p>
         )}
       </div>

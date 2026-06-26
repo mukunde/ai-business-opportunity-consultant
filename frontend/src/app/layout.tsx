@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { Fira_Code, Fira_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { SiteHeader } from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
 
 // Design system (see DESIGN.md): Fira Sans drives the UI; Fira Code is the mono
@@ -45,28 +44,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground min-h-full flex flex-col">
         <Providers>
-          <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-30 border-b backdrop-blur">
-            <div className="flex h-14 items-center gap-2 px-6">
-              <Link href="/" className="flex items-baseline gap-2.5">
-                <Image
-                  src="/logo.png"
-                  alt="Alfred AI"
-                  width={26}
-                  height={30}
-                  priority
-                />
-                <span
-                  className="text-base font-semibold tracking-tight"
-                  style={{ fontFamily: "var(--font-space-grotesk)" }}
-                >
-                  Alfred AI
-                </span>
-                <span className="text-muted-foreground hidden text-xs sm:inline">
-                  · AI use-case qualification
-                </span>
-              </Link>
-            </div>
-          </header>
+          <SiteHeader />
           <main className="w-full flex-1 px-6 py-8">{children}</main>
           <Toaster />
         </Providers>

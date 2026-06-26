@@ -10,9 +10,11 @@ import { OpportunityModelPanel } from "@/components/cockpit/opportunity-model-pa
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { useT } from "@/lib/i18n";
 import { ApiError, api } from "@/lib/api";
 
 export function Cockpit({ opportunityId }: { opportunityId: string }) {
+  const t = useT();
   const queryClient = useQueryClient();
 
   const interview = useQuery({
@@ -60,7 +62,7 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
   if (interview.isError || !interview.data) {
     return (
       <p className="text-destructive text-sm" role="alert">
-        Could not load the interview. Is the API running?
+        {t("Could not load the interview. Is the API running?")}
       </p>
     );
   }
@@ -79,7 +81,7 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
 
       <section className="bg-card order-1 flex h-[72vh] flex-col rounded-xl border p-5 lg:order-2">
         <h2 className="text-muted-foreground mb-4 shrink-0 text-xs font-medium tracking-wide uppercase">
-          Conversation
+          {t("Conversation")}
         </h2>
         <div className="min-h-0 flex-1">
           <ConversationPanel
@@ -105,13 +107,17 @@ function StartInterview({
   pending: boolean;
   onStart: (message: string) => void;
 }) {
+  const t = useT();
   const [message, setMessage] = useState("");
   return (
     <div className="bg-card mx-auto max-w-xl rounded-xl border p-6">
-      <h2 className="font-semibold">Start the qualification interview</h2>
+      <h2 className="font-semibold">
+        {t("Start the qualification interview")}
+      </h2>
       <p className="text-muted-foreground mt-1 text-sm">
-        Describe the idea or problem in your own words. The consultant will ask
-        adaptive questions to build the context.
+        {t(
+          "Describe the idea or problem in your own words. The consultant will ask adaptive questions to build the context.",
+        )}
       </p>
       <form
         className="mt-4 space-y-3"
@@ -124,11 +130,11 @@ function StartInterview({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
-          placeholder="We receive too many customer support emails…"
+          placeholder={t("We receive too many customer support emails…")}
           required
         />
         <Button type="submit" disabled={!message.trim() || pending}>
-          {pending ? "Starting…" : "Start interview"}
+          {pending ? t("Starting…") : t("Start interview")}
         </Button>
       </form>
     </div>

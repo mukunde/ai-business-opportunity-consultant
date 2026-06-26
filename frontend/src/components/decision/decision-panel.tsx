@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Markdown } from "@/components/decision/markdown";
 import { InfoTip } from "@/components/info-tip";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 import {
   ApiError,
   api,
@@ -123,30 +124,35 @@ function ScoringSection({
   }) => void;
   pending: boolean;
 }) {
+  const t = useT();
   const [impact, setImpact] = useState(7);
   const [ease, setEase] = useState(6);
   const [strategic, setStrategic] = useState(8);
 
   return (
-    <Section title="Scoring">
+    <Section title={t("Scoring")}>
       <div className="space-y-2.5">
         <Slider
-          label="Impact"
+          label={t("Impact")}
           value={impact}
           onChange={setImpact}
-          tip="How much value would solving this create? Higher means bigger business impact. Your judgement, 1 to 10."
+          tip={t(
+            "How much value would solving this create? Higher means bigger business impact. Your judgement, 1 to 10.",
+          )}
         />
         <Slider
-          label="Ease"
+          label={t("Ease")}
           value={ease}
           onChange={setEase}
-          tip="How easy is it to deliver? Higher means simpler to build and roll out. Feeds the ICE score. 1 to 10."
+          tip={t(
+            "How easy is it to deliver? Higher means simpler to build and roll out. Feeds the ICE score. 1 to 10.",
+          )}
         />
         <Slider
-          label="Strategic align."
+          label={t("Strategic align.")}
           value={strategic}
           onChange={setStrategic}
-          tip="How well does it fit the company strategy and priorities? 1 to 10."
+          tip={t("How well does it fit the company strategy and priorities? 1 to 10.")}
         />
       </div>
       <Button
@@ -156,14 +162,20 @@ function ScoringSection({
           onScore({ impact, ease, strategic_alignment: strategic })
         }
       >
-        {pending ? "Scoring…" : score ? "Re-score" : "Score opportunity"}
+        {pending
+          ? t("Scoring…")
+          : score
+            ? t("Re-score")
+            : t("Score opportunity")}
       </Button>
 
       {score ? (
         <div className="mt-5 space-y-4 border-t pt-5">
           <div className="flex items-end gap-6">
             <div>
-              <p className="text-muted-foreground text-xs">Priority score</p>
+              <p className="text-muted-foreground text-xs">
+                {t("Priority score")}
+              </p>
               <p className="font-mono text-3xl font-semibold tabular-nums">
                 {score.final_score.toFixed(1)}
                 <span className="text-muted-foreground text-base">/10</span>
@@ -172,7 +184,7 @@ function ScoringSection({
             <details className="group">
               <summary className="cursor-pointer list-none">
                 <p className="text-muted-foreground text-xs">
-                  Confidence
+                  {t("Confidence")}
                   <span className="ml-1 opacity-60 group-open:hidden">(?)</span>
                 </p>
                 <p className="font-mono text-xl tabular-nums">
@@ -180,8 +192,9 @@ function ScoringSection({
                 </p>
               </summary>
               <p className="text-muted-foreground mt-1 max-w-xs text-xs">
-                = overall context completeness. An incomplete interview lowers
-                the score&apos;s confidence rather than faking certainty.
+                {t(
+                  "= overall context completeness. An incomplete interview lowers the score's confidence rather than faking certainty.",
+                )}
               </p>
             </details>
           </div>
@@ -191,8 +204,9 @@ function ScoringSection({
               Final = 0.3×ROI + 0.3×ICE + 0.2×Strategic - 0.2×Risk (0-10)
             </p>
             <p className="mt-1.5">
-              ICE = Impact × Confidence × Ease (normalized to 0-10). Click any
-              metric below for its rationale and calculation.
+              {t(
+                "ICE = Impact × Confidence × Ease (normalized to 0-10). Click any metric below for its rationale and calculation.",
+              )}
             </p>
           </div>
 
@@ -204,16 +218,16 @@ function ScoringSection({
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between text-sm">
                   <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                    {m.label}
+                    {t(m.label)}
                   </span>
                   <span className="font-mono tabular-nums">
                     {(score[m.key] as number).toFixed(1)}
                   </span>
                 </summary>
                 <div className="text-muted-foreground mt-2 space-y-1.5 border-t pt-2 text-xs">
-                  <p>{m.rationale}</p>
+                  <p>{t(m.rationale)}</p>
                   <p className="text-foreground font-mono">
-                    {m.label} = {m.formula}
+                    {t(m.label)} = {t(m.formula)}
                   </p>
                 </div>
               </details>
@@ -250,21 +264,22 @@ function RecommendationSection({
   onDecide: () => void;
   pending: boolean;
 }) {
+  const t = useT();
   return (
-    <Section title="Recommendation">
+    <Section title={t("Recommendation")}>
       {rec ? (
         <div className={`rounded-lg border p-4 ${REC_STYLE[rec.type]}`}>
-          <p className="text-lg font-semibold">{REC_LABEL[rec.type]}</p>
+          <p className="text-lg font-semibold">{t(REC_LABEL[rec.type])}</p>
           <p className="mt-1 text-sm opacity-90">{rec.rationale}</p>
           <p className="mt-2 font-mono text-xs tabular-nums opacity-70">
-            confidence {Math.round(rec.confidence * 100)}%
+            {t("confidence")} {Math.round(rec.confidence * 100)}%
           </p>
         </div>
       ) : (
         <p className="text-muted-foreground text-sm">
           {canDecide
-            ? "Turn the score into a decision."
-            : "Score the opportunity first."}
+            ? t("Turn the score into a decision.")
+            : t("Score the opportunity first.")}
         </p>
       )}
       <Button
@@ -273,7 +288,11 @@ function RecommendationSection({
         disabled={!canDecide || pending}
         onClick={onDecide}
       >
-        {pending ? "Deciding…" : rec ? "Re-decide" : "Get recommendation"}
+        {pending
+          ? t("Deciding…")
+          : rec
+            ? t("Re-decide")
+            : t("Get recommendation")}
       </Button>
     </Section>
   );
@@ -290,22 +309,23 @@ function ReportSection({
   onGenerate: () => void;
   pending: boolean;
 }) {
+  const t = useT();
   return (
-    <Section title="Report">
+    <Section title={t("Report")}>
       <Button
         variant={report ? "outline" : "default"}
         disabled={!canGenerate || pending}
         onClick={onGenerate}
       >
         {pending
-          ? "Generating…"
+          ? t("Generating…")
           : report
-            ? "Regenerate report"
-            : "Generate report"}
+            ? t("Regenerate report")
+            : t("Generate report")}
       </Button>
       {!canGenerate ? (
         <p className="text-muted-foreground mt-3 text-sm">
-          Get a recommendation first.
+          {t("Get a recommendation first.")}
         </p>
       ) : null}
 
@@ -313,7 +333,7 @@ function ReportSection({
         <div className="mt-5 space-y-4">
           <details open className="rounded-lg border p-4">
             <summary className="cursor-pointer text-sm font-medium">
-              Executive summary
+              {t("Executive summary")}
             </summary>
             <div className="mt-3">
               <Markdown>{report.executive_summary.markdown_content}</Markdown>
@@ -321,7 +341,7 @@ function ReportSection({
           </details>
           <details className="rounded-lg border p-4">
             <summary className="cursor-pointer text-sm font-medium">
-              Detailed assessment
+              {t("Detailed assessment")}
             </summary>
             <div className="mt-3">
               <Markdown>{report.detailed_assessment.markdown_content}</Markdown>
@@ -334,6 +354,7 @@ function ReportSection({
 }
 
 export function DecisionPanel({ opportunityId }: { opportunityId: string }) {
+  const t = useT();
   const qc = useQueryClient();
   const id = opportunityId;
 
@@ -357,7 +378,7 @@ export function DecisionPanel({ opportunityId }: { opportunityId: string }) {
     keys.forEach((k) => void qc.invalidateQueries({ queryKey: [k, id] }));
 
   const onError = (e: unknown) =>
-    toast.error(e instanceof ApiError ? e.message : "Request failed");
+    toast.error(e instanceof ApiError ? e.message : t("Request failed"));
 
   const scoreMut = useMutation({
     mutationFn: (input: {
