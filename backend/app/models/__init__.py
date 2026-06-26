@@ -18,10 +18,12 @@ from app.models.interview import (
     TurnRole,
 )
 from app.models.opportunity import Opportunity, OpportunityStatus
+from app.models.scoring import ScoreSnapshot
 
 __all__ = [
     "Opportunity",
     "OpportunityStatus",
+    "ScoreSnapshot",
     "InterviewSession",
     "InterviewStatus",
     "ConversationTurn",
