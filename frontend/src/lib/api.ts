@@ -15,6 +15,12 @@ export type ContextGraph = components["schemas"]["ContextGraphRead"];
 export type ContextNode = components["schemas"]["NodeRead"];
 export type Completeness = components["schemas"]["CompletenessRead"];
 
+export type Score = components["schemas"]["ScoreRead"];
+export type ScoreInput = components["schemas"]["ScoreInput"];
+export type Recommendation = components["schemas"]["RecommendationRead"];
+export type RecommendationType = Recommendation["type"];
+export type ReportBundle = components["schemas"]["ReportBundle"];
+
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -70,4 +76,21 @@ export const api = {
     apiFetch<InterviewSession>(`/opportunities/${id}/interview`),
   getContext: (id: string) =>
     apiFetch<ContextGraph>(`/opportunities/${id}/context`),
+
+  getScore: (id: string) => apiFetch<Score>(`/opportunities/${id}/score`),
+  createScore: (id: string, input: ScoreInput) =>
+    apiFetch<Score>(`/opportunities/${id}/score`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  getRecommendation: (id: string) =>
+    apiFetch<Recommendation>(`/opportunities/${id}/recommendation`),
+  createRecommendation: (id: string) =>
+    apiFetch<Recommendation>(`/opportunities/${id}/recommendation`, {
+      method: "POST",
+    }),
+  getReport: (id: string) =>
+    apiFetch<ReportBundle>(`/opportunities/${id}/report`),
+  createReport: (id: string) =>
+    apiFetch<ReportBundle>(`/opportunities/${id}/report`, { method: "POST" }),
 };
