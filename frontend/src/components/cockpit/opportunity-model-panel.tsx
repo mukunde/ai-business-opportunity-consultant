@@ -1,7 +1,18 @@
 "use client";
 
 import { useT } from "@/lib/i18n";
-import type { ContextNode } from "@/lib/api";
+import type { ContextGraph, ContextNode } from "@/lib/api";
+
+type Relationship = ContextGraph["relationships"][number];
+type Contradiction = ContextGraph["contradictions"][number];
+
+// Readable verb for each relation type (keys live in the translation dictionary).
+const RELATION_VERB: Record<Relationship["relation_type"], string> = {
+  SUPPORTS: "supports",
+  DEPENDS_ON: "depends on",
+  REQUIRES: "requires",
+  CONTRADICTS: "contradicts",
+};
 
 function Group({
   title,
@@ -23,11 +34,22 @@ function Group({
   );
 }
 
-export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
+export function OpportunityModelPanel({
+  nodes,
+  relationships = [],
+  contradictions = [],
+}: {
+  nodes: ContextNode[];
+  relationships?: Relationship[];
+  contradictions?: Contradiction[];
+}) {
   const facts = nodes.filter((n) => n.type === "FACT");
   const assumptions = nodes.filter((n) => n.type === "ASSUMPTION");
   const unknowns = nodes.filter((n) => n.type === "UNKNOWN");
   const t = useT();
+
+  const labelOf = (id: string | null) =>
+    nodes.find((n) => n.id === id)?.label ?? "?";
 
   return (
     <div className="space-y-6">
@@ -71,6 +93,44 @@ export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
           <p className="text-muted-foreground text-sm">{t("None.")}</p>
         )}
       </Group>
+
+      {relationships.length > 0 ? (
+        <Group title={t("Connections")} dot="bg-primary">
+          <ul className="space-y-1.5 text-sm">
+            {relationships.map((r) => (
+              <li key={r.id} className="leading-snug">
+                <span className="font-medium">{labelOf(r.source_node_id)}</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  {t(RELATION_VERB[r.relation_type])}{" "}
+                </span>
+                <span className="font-medium">{labelOf(r.target_node_id)}</span>
+              </li>
+            ))}
+          </ul>
+        </Group>
+      ) : null}
+
+      {contradictions.length > 0 ? (
+        <Group title={t("Tensions")} dot="bg-red-500">
+          <ul className="space-y-2.5 text-sm">
+            {contradictions.map((c) => (
+              <li key={c.id}>
+                <p className="font-medium">
+                  {labelOf(c.node_a_id)}
+                  <span className="text-muted-foreground"> {t("vs")} </span>
+                  {labelOf(c.node_b_id)}
+                </p>
+                {c.description ? (
+                  <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
+                    {c.description}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </Group>
+      ) : null}
     </div>
   );
 }

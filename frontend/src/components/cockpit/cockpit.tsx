@@ -75,6 +75,8 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
 
   const session = interview.data;
   const nodes = context.data?.nodes ?? [];
+  const relationships = context.data?.relationships ?? [];
+  const contradictions = context.data?.contradictions ?? [];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(190px,22%)_1fr_minmax(210px,28%)]">
@@ -100,7 +102,11 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
       </section>
 
       <aside className="bg-card order-3 rounded-xl border p-5 lg:sticky lg:top-20 lg:self-start">
-        <OpportunityModelPanel nodes={nodes} />
+        <OpportunityModelPanel
+          nodes={nodes}
+          relationships={relationships}
+          contradictions={contradictions}
+        />
       </aside>
     </div>
   );

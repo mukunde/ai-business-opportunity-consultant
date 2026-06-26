@@ -88,6 +88,13 @@ export const fr: Record<string, string> = {
   "Nothing established yet.": "Rien d'établi pour l'instant.",
   "None recorded.": "Aucune enregistrée.",
   "None.": "Aucune.",
+  Connections: "Connexions",
+  Tensions: "Tensions",
+  supports: "soutient",
+  "depends on": "dépend de",
+  requires: "requiert",
+  contradicts: "contredit",
+  vs: "vs",
 
   // Decision: scoring
   Impact: "Impact",

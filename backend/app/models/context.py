@@ -125,6 +125,8 @@ class Contradiction(Base):
     # Logical references to nodes (no FK: contradictions outlive node rebuilds).
     node_a_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
     node_b_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
+    # The model's explanation of why the two elements conflict.
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[ContradictionStatus] = mapped_column(
         SAEnum(ContradictionStatus, name="contradiction_status"),
         nullable=False,

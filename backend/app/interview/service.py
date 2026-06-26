@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.context.enrichment import enrich_semantics
 from app.context.projection import project_context
 from app.interview.graph import run_turn
 from app.interview.llm import LLMClient
@@ -128,6 +129,9 @@ def continue_interview(
             opportunity.status = OpportunityStatus.STRUCTURED
 
     project_context(db, session.opportunity_id, state)
+    if state.get("done"):
+        # Reason over the now-complete context once: typed edges + contradictions.
+        enrich_semantics(db, session.opportunity_id, llm)
     db.commit()
     db.refresh(session)
     return session
