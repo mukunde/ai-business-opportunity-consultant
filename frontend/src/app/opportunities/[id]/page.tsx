@@ -85,7 +85,10 @@ export default function OpportunityDetailPage() {
       <Cockpit opportunityId={id} />
 
       {DECISION_STATUSES.includes(o.status) ? (
-        <div ref={decisionRef} className="scroll-mt-20 space-y-4">
+        <div
+          ref={decisionRef}
+          className="animate-in fade-in slide-in-from-bottom-2 scroll-mt-20 space-y-4 duration-500 motion-reduce:animate-none"
+        >
           <h2 className="text-base font-semibold tracking-tight">
             {t("Decision")}
           </h2>

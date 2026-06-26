@@ -170,7 +170,7 @@ function ScoringSection({
       </Button>
 
       {score ? (
-        <div className="mt-5 space-y-4 border-t pt-5">
+        <div className="animate-in fade-in slide-in-from-top-1 mt-5 space-y-4 border-t pt-5 duration-300 motion-reduce:animate-none">
           <div className="flex items-end gap-6">
             <div>
               <p className="text-muted-foreground text-xs">
@@ -268,7 +268,9 @@ function RecommendationSection({
   return (
     <Section title={t("Recommendation")}>
       {rec ? (
-        <div className={`rounded-lg border p-4 ${REC_STYLE[rec.type]}`}>
+        <div
+          className={`animate-in fade-in zoom-in-95 rounded-lg border p-4 duration-300 motion-reduce:animate-none ${REC_STYLE[rec.type]}`}
+        >
           <p className="text-lg font-semibold">{t(REC_LABEL[rec.type])}</p>
           <p className="mt-1 text-sm opacity-90">{rec.rationale}</p>
           <p className="mt-2 font-mono text-xs tabular-nums opacity-70">
@@ -330,7 +332,7 @@ function ReportSection({
       ) : null}
 
       {report ? (
-        <div className="mt-5 space-y-4">
+        <div className="animate-in fade-in slide-in-from-top-1 mt-5 space-y-4 duration-300 motion-reduce:animate-none">
           <details open className="rounded-lg border p-4">
             <summary className="cursor-pointer text-sm font-medium">
               {t("Executive summary")}
