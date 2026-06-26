@@ -103,7 +103,7 @@ export function Dashboard() {
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">Opportunities</CardTitle>
           {opportunities.data ? (
-            <span className="text-muted-foreground text-sm tabular-nums">
+            <span className="text-muted-foreground font-mono text-sm tabular-nums">
               {opportunities.data.length}
             </span>
           ) : null}
@@ -141,7 +141,7 @@ export function Dashboard() {
                     <TableCell className="font-medium">
                       <Link
                         href={`/opportunities/${o.id}`}
-                        className="hover:underline"
+                        className="hover:text-primary transition-colors"
                       >
                         {o.title}
                       </Link>
@@ -152,7 +152,7 @@ export function Dashboard() {
                     <TableCell>
                       <StatusBadge status={o.status} />
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-right">
+                    <TableCell className="text-muted-foreground text-right font-mono text-xs tabular-nums">
                       {new Date(o.created_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
