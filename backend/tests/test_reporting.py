@@ -7,6 +7,7 @@ from app.reporting.generator import (
     build_detailed_assessment,
     build_executive_summary,
 )
+from app.reporting.pdf import render_report_pdf
 
 _FULL_DATA = ReportData(
     title="Support Automation",
@@ -62,6 +63,15 @@ def test_reports_degrade_without_score() -> None:
     assert "No recommendation yet." in md
 
 
+def test_render_report_pdf_returns_pdf_bytes() -> None:
+    pdf = render_report_pdf(
+        summary_md=build_executive_summary(_FULL_DATA),
+        assessment_md=build_detailed_assessment(_FULL_DATA),
+    )
+    assert pdf.startswith(b"%PDF")
+    assert len(pdf) > 1000
+
+
 def _opp(client: TestClient) -> str:
     return client.post("/opportunities", json={"title": "Support Automation"}).json()["id"]
 
@@ -106,3 +116,21 @@ def test_report_full_flow(client: TestClient) -> None:
     # Opportunity advanced to REVIEW; the report is retrievable.
     assert client.get(f"/opportunities/{opp_id}").json()["status"] == "REVIEW"
     assert client.get(f"/opportunities/{opp_id}/report").status_code == 200
+
+
+def test_report_pdf_before_generation_404(client: TestClient) -> None:
+    opp_id = _opp(client)
+    assert client.get(f"/opportunities/{opp_id}/report.pdf").status_code == 404
+
+
+def test_report_pdf_download_after_generation(client: TestClient) -> None:
+    opp_id = _opp(client)
+    _run_to_recommendation(client, opp_id)
+    client.post(f"/opportunities/{opp_id}/report")
+
+    resp = client.get(f"/opportunities/{opp_id}/report.pdf")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/pdf"
+    assert "attachment" in resp.headers["content-disposition"]
+    assert resp.headers["content-disposition"].endswith('-report.pdf"')
+    assert resp.content.startswith(b"%PDF")

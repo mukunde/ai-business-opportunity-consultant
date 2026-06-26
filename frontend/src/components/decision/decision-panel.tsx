@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Markdown } from "@/components/decision/markdown";
 import { InfoTip } from "@/components/info-tip";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useT } from "@/lib/i18n";
 import {
   ApiError,
@@ -301,11 +301,13 @@ function RecommendationSection({
 }
 
 function ReportSection({
+  opportunityId,
   report,
   canGenerate,
   onGenerate,
   pending,
 }: {
+  opportunityId: string;
   report?: ReportBundle;
   canGenerate: boolean;
   onGenerate: () => void;
@@ -314,17 +316,28 @@ function ReportSection({
   const t = useT();
   return (
     <Section title={t("Report")}>
-      <Button
-        variant={report ? "outline" : "default"}
-        disabled={!canGenerate || pending}
-        onClick={onGenerate}
-      >
-        {pending
-          ? t("Generating…")
-          : report
-            ? t("Regenerate report")
-            : t("Generate report")}
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          variant={report ? "outline" : "default"}
+          disabled={!canGenerate || pending}
+          onClick={onGenerate}
+        >
+          {pending
+            ? t("Generating…")
+            : report
+              ? t("Regenerate report")
+              : t("Generate report")}
+        </Button>
+        {report ? (
+          <a
+            href={api.reportPdfUrl(opportunityId)}
+            rel="noopener"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            {t("Download PDF")}
+          </a>
+        ) : null}
+      </div>
       {!canGenerate ? (
         <p className="text-muted-foreground mt-3 text-sm">
           {t("Get a recommendation first.")}
@@ -416,6 +429,7 @@ export function DecisionPanel({ opportunityId }: { opportunityId: string }) {
         pending={recMut.isPending}
       />
       <ReportSection
+        opportunityId={id}
         report={report.data}
         canGenerate={recommendation.isSuccess}
         onGenerate={() => reportMut.mutate()}

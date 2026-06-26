@@ -108,4 +108,7 @@ export const api = {
     apiFetch<ReportBundle>(`/opportunities/${id}/report`),
   createReport: (id: string) =>
     apiFetch<ReportBundle>(`/opportunities/${id}/report`, { method: "POST" }),
+  // Direct link to the server-rendered PDF (a plain GET the browser downloads),
+  // so it is an <a href> rather than an apiFetch JSON call.
+  reportPdfUrl: (id: string) => `${API_BASE}/opportunities/${id}/report.pdf`,
 };
