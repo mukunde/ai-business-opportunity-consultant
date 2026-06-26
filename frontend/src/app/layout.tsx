@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fira_Code, Fira_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Design system (see DESIGN.md): Fira Sans drives the UI; Fira Code is the
+// mono used for data, numerics and the wordmark - a restrained "analytical"
+// signal rather than mono everywhere.
+const firaSans = Fira_Sans({
+  variable: "--font-fira-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const firaCode = Fira_Code({
+  variable: "--font-fira-code",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -29,14 +34,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${firaSans.variable} ${firaCode.variable} h-full antialiased`}
     >
       <body className="bg-background text-foreground min-h-full flex flex-col">
         <Providers>
-          <header className="border-b">
-            <div className="mx-auto flex h-14 max-w-6xl items-center px-6">
-              <Link href="/" className="font-semibold tracking-tight">
-                AI Opportunity Consultant
+          <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-30 border-b backdrop-blur">
+            <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-6">
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight"
+              >
+                <span className="bg-primary size-4 rounded-[5px]" aria-hidden />
+                opportunity<span className="text-muted-foreground">/consultant</span>
               </Link>
             </div>
           </header>
