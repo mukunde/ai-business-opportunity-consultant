@@ -51,10 +51,9 @@ export default function RootLayout({
                 <Image
                   src="/logo.png"
                   alt="Alfred AI"
-                  width={23}
+                  width={26}
                   height={30}
                   priority
-                  className="mix-blend-multiply"
                 />
                 <span
                   className="text-base font-semibold tracking-tight"
