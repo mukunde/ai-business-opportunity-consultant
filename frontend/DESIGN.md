@@ -12,9 +12,9 @@ decision-support tool, so the interface disappears into the task.
 
 ## Color (OKLCH tokens in `src/app/globals.css`)
 
-Strategy: **Restrained** - slate-tinted neutrals + one deep-blue brand accent.
+Strategy: **Restrained** - faintly teal-tinted neutrals + one deep-teal brand accent (matched to the Alfred AI mark).
 
-- `--primary` deep professional blue (~blue-800): primary actions, selection, focus ring. White foreground.
+- `--primary` deep teal: primary actions, selection, focus ring. White foreground (teal kept dark enough for WCAG AA).
 - `--highlight` amber: reserved for sparse attention states only (<=10% of surface), never decoration.
 - Neutrals tinted ~0.01 chroma toward the brand hue (264). `--card` is pure white to layer above the tinted `--background`.
 - `--muted-foreground` is darkened from the shadcn default to clear 4.5:1 on light.
@@ -23,7 +23,8 @@ Strategy: **Restrained** - slate-tinted neutrals + one deep-blue brand accent.
 ## Typography
 
 - **Fira Sans** - all UI text, labels, headings, body. Fixed rem scale (product UIs view at consistent DPI; no fluid clamp headings).
-- **Fira Code (mono)** - numerics, tabular data, IDs, and the wordmark. A restrained "analytical" signal, not mono everywhere. Pair `font-mono` with `tabular-nums` for figures.
+- **Fira Code (mono)** - numerics, tabular data, IDs. A restrained "analytical" signal, not mono everywhere. Pair `font-mono` with `tabular-nums` for figures.
+- **Space Grotesk** - brand/logo face, used only for the "Alfred AI" wordmark next to the tree mark.
 
 ## Components & states
 
