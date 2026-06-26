@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Markdown } from "@/components/decision/markdown";
+import { InfoTip } from "@/components/info-tip";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -82,24 +83,30 @@ function Slider({
   label,
   value,
   onChange,
+  tip,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
+  tip?: string;
 }) {
   return (
-    <label className="flex items-center gap-3 text-sm">
-      <span className="w-28 shrink-0">{label}</span>
+    <div className="flex items-center gap-3 text-sm">
+      <span className="flex w-32 shrink-0 items-center">
+        {label}
+        {tip ? <InfoTip text={tip} /> : null}
+      </span>
       <input
         type="range"
         min={1}
         max={10}
         value={value}
+        aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))}
         className="accent-primary flex-1"
       />
       <span className="w-6 text-right font-mono tabular-nums">{value}</span>
-    </label>
+    </div>
   );
 }
 
@@ -123,12 +130,23 @@ function ScoringSection({
   return (
     <Section title="Scoring">
       <div className="space-y-2.5">
-        <Slider label="Impact" value={impact} onChange={setImpact} />
-        <Slider label="Ease" value={ease} onChange={setEase} />
+        <Slider
+          label="Impact"
+          value={impact}
+          onChange={setImpact}
+          tip="How much value would solving this create? Higher means bigger business impact. Your judgement, 1 to 10."
+        />
+        <Slider
+          label="Ease"
+          value={ease}
+          onChange={setEase}
+          tip="How easy is it to deliver? Higher means simpler to build and roll out. Feeds the ICE score. 1 to 10."
+        />
         <Slider
           label="Strategic align."
           value={strategic}
           onChange={setStrategic}
+          tip="How well does it fit the company strategy and priorities? 1 to 10."
         />
       </div>
       <Button
