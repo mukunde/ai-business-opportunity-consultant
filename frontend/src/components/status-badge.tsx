@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/lib/i18n";
 import type { OpportunityStatus } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -23,10 +26,11 @@ const LABEL: Record<OpportunityStatus, string> = {
 };
 
 export function StatusBadge({ status }: { status: OpportunityStatus }) {
+  const t = useT();
   return (
     <span className="border-border text-foreground inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium">
       <span className={cn("size-1.5 rounded-full", DOT[status])} aria-hidden />
-      {LABEL[status]}
+      {t(LABEL[status])}
     </span>
   );
 }

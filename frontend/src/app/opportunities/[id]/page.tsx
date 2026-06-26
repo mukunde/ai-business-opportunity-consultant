@@ -10,11 +10,13 @@ import { DecisionPanel } from "@/components/decision/decision-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useT } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
 const DECISION_STATUSES = ["STRUCTURED", "SCORING", "RECOMMENDED", "REVIEW"];
 
 export default function OpportunityDetailPage() {
+  const t = useT();
   const { id } = useParams<{ id: string }>();
   const opportunity = useQuery({
     queryKey: ["opportunity", id],
@@ -52,10 +54,10 @@ export default function OpportunityDetailPage() {
     return (
       <div className="space-y-4">
         <p className="text-destructive text-sm" role="alert">
-          Opportunity not found.
+          {t("Opportunity not found.")}
         </p>
         <Link href="/" className={buttonVariants({ variant: "outline" })}>
-          Back to dashboard
+          {t("Back to dashboard")}
         </Link>
       </div>
     );
@@ -70,11 +72,11 @@ export default function OpportunityDetailPage() {
             href="/"
             className="text-muted-foreground hover:text-foreground text-xs transition-colors"
           >
-            ← Dashboard
+            ← {t("Dashboard")}
           </Link>
           <h1 className="mt-1 text-lg font-semibold tracking-tight">{o.title}</h1>
           <p className="text-muted-foreground mt-0.5 text-sm">
-            {o.business_area ?? "No business area"}
+            {o.business_area ?? t("No business area")}
           </p>
         </div>
         <StatusBadge status={o.status} />
@@ -84,7 +86,9 @@ export default function OpportunityDetailPage() {
 
       {DECISION_STATUSES.includes(o.status) ? (
         <div ref={decisionRef} className="scroll-mt-20 space-y-4">
-          <h2 className="text-base font-semibold tracking-tight">Decision</h2>
+          <h2 className="text-base font-semibold tracking-tight">
+            {t("Decision")}
+          </h2>
           <DecisionPanel opportunityId={id} />
         </div>
       ) : null}

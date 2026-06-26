@@ -1,3 +1,6 @@
+"use client";
+
+import { useT } from "@/lib/i18n";
 import type { ContextNode } from "@/lib/api";
 
 function Group({
@@ -24,10 +27,11 @@ export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
   const facts = nodes.filter((n) => n.type === "FACT");
   const assumptions = nodes.filter((n) => n.type === "ASSUMPTION");
   const unknowns = nodes.filter((n) => n.type === "UNKNOWN");
+  const t = useT();
 
   return (
     <div className="space-y-6">
-      <Group title="Facts" dot="bg-emerald-500">
+      <Group title={t("Facts")} dot="bg-emerald-500">
         {facts.length > 0 ? (
           <dl className="space-y-2">
             {facts.map((n) => (
@@ -38,11 +42,13 @@ export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
             ))}
           </dl>
         ) : (
-          <p className="text-muted-foreground text-sm">Nothing established yet.</p>
+          <p className="text-muted-foreground text-sm">
+            {t("Nothing established yet.")}
+          </p>
         )}
       </Group>
 
-      <Group title="Assumptions" dot="bg-amber-500">
+      <Group title={t("Assumptions")} dot="bg-amber-500">
         {assumptions.length > 0 ? (
           <ul className="space-y-1.5 text-sm">
             {assumptions.map((n) => (
@@ -50,11 +56,11 @@ export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-sm">None recorded.</p>
+          <p className="text-muted-foreground text-sm">{t("None recorded.")}</p>
         )}
       </Group>
 
-      <Group title="Unknowns" dot="bg-zinc-400">
+      <Group title={t("Unknowns")} dot="bg-zinc-400">
         {unknowns.length > 0 ? (
           <ul className="text-muted-foreground space-y-1.5 text-sm">
             {unknowns.map((n) => (
@@ -62,7 +68,7 @@ export function OpportunityModelPanel({ nodes }: { nodes: ContextNode[] }) {
             ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground text-sm">None.</p>
+          <p className="text-muted-foreground text-sm">{t("None.")}</p>
         )}
       </Group>
     </div>

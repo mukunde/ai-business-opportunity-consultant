@@ -18,9 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useT } from "@/lib/i18n";
 import { ApiError, api, type Opportunity } from "@/lib/api";
 
 export function Dashboard() {
+  const t = useT();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [businessArea, setBusinessArea] = useState("");
@@ -37,24 +39,25 @@ export function Dashboard() {
       setTitle("");
       setBusinessArea("");
       void queryClient.invalidateQueries({ queryKey: ["opportunities"] });
-      toast.success("Opportunity created");
+      toast.success(t("Opportunity created"));
     },
     onError: (e) =>
-      toast.error(e instanceof ApiError ? e.message : "Failed to create"),
+      toast.error(e instanceof ApiError ? e.message : t("Failed to create")),
   });
 
   return (
     <div className="mx-auto max-w-6xl space-y-10">
       <header>
-        <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="text-lg font-semibold tracking-tight">{t("Dashboard")}</h1>
         <p className="text-muted-foreground mt-1 max-w-prose text-sm">
-          Turn a vague idea into a structured, scored, decision-ready AI
-          opportunity assessment.
+          {t(
+            "Turn a vague idea into a structured, scored, decision-ready AI opportunity assessment.",
+          )}
         </p>
       </header>
 
       <section className="bg-card rounded-xl border p-5 sm:p-6">
-        <h2 className="text-sm font-medium">New assessment</h2>
+        <h2 className="text-sm font-medium">{t("New assessment")}</h2>
         <form
           className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
           onSubmit={(e) => {
@@ -63,7 +66,7 @@ export function Dashboard() {
           }}
         >
           <div className="space-y-1.5">
-            <Label htmlFor="title">Opportunity title</Label>
+            <Label htmlFor="title">{t("Opportunity title")}</Label>
             <Input
               id="title"
               value={title}
@@ -73,7 +76,7 @@ export function Dashboard() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="area">Business area</Label>
+            <Label htmlFor="area">{t("Business area")}</Label>
             <Input
               id="area"
               value={businessArea}
@@ -82,14 +85,14 @@ export function Dashboard() {
             />
           </div>
           <Button type="submit" disabled={!title.trim() || create.isPending}>
-            {create.isPending ? "Creating…" : "Start assessment"}
+            {create.isPending ? t("Creating…") : t("Start assessment")}
           </Button>
         </form>
       </section>
 
       <section className="space-y-3">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-medium">Opportunities</h2>
+          <h2 className="text-sm font-medium">{t("Opportunities")}</h2>
           {opportunities.data ? (
             <span className="text-muted-foreground font-mono text-xs tabular-nums">
               {opportunities.data.length}
@@ -111,7 +114,7 @@ export function Dashboard() {
             </div>
           ) : opportunities.isError ? (
             <p className="text-destructive px-5 py-6 text-sm" role="alert">
-              Could not reach the API. Is the backend running on{" "}
+              {t("Could not reach the API. Is the backend running on")}{" "}
               {process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"}?
             </p>
           ) : opportunities.data && opportunities.data.length > 0 ? (
@@ -119,16 +122,16 @@ export function Dashboard() {
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-muted-foreground h-11 px-5 text-xs font-medium tracking-wide uppercase">
-                    Title
+                    {t("Title")}
                   </TableHead>
                   <TableHead className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                    Business area
+                    {t("Business area")}
                   </TableHead>
                   <TableHead className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                    Status
+                    {t("Status")}
                   </TableHead>
                   <TableHead className="text-muted-foreground px-5 text-right text-xs font-medium tracking-wide uppercase">
-                    Created
+                    {t("Created")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -158,10 +161,11 @@ export function Dashboard() {
             </Table>
           ) : (
             <div className="px-5 py-14 text-center">
-              <p className="text-sm font-medium">No opportunities yet</p>
+              <p className="text-sm font-medium">{t("No opportunities yet")}</p>
               <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
-                Create one above to start a context-driven interview, then score
-                it and get a recommendation.
+                {t(
+                  "Create one above to start a context-driven interview, then score it and get a recommendation.",
+                )}
               </p>
             </div>
           )}
