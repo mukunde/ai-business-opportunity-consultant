@@ -44,10 +44,10 @@ export function Dashboard() {
   });
 
   return (
-    <div className="space-y-10">
+    <div className="mx-auto max-w-6xl space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-1.5 max-w-prose text-sm">
+        <h1 className="text-lg font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground mt-1 max-w-prose text-sm">
           Turn a vague idea into a structured, scored, decision-ready AI
           opportunity assessment.
         </p>

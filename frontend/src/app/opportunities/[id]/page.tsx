@@ -36,7 +36,7 @@ export default function OpportunityDetailPage() {
 
   const o = opportunity.data;
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-[1680px] space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link
@@ -45,7 +45,7 @@ export default function OpportunityDetailPage() {
           >
             ← Dashboard
           </Link>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{o.title}</h1>
+          <h1 className="mt-1 text-lg font-semibold tracking-tight">{o.title}</h1>
           <p className="text-muted-foreground mt-0.5 text-sm">
             {o.business_area ?? "No business area"}
           </p>
