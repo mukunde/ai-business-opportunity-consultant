@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { Cockpit } from "@/components/cockpit/cockpit";
+import { DecisionPanel } from "@/components/decision/decision-panel";
 import { StatusBadge } from "@/components/status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
+
+const DECISION_STATUSES = ["STRUCTURED", "SCORING", "RECOMMENDED", "REVIEW"];
 
 export default function OpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -54,6 +57,10 @@ export default function OpportunityDetailPage() {
       </div>
 
       <Cockpit opportunityId={id} />
+
+      {DECISION_STATUSES.includes(o.status) ? (
+        <DecisionPanel opportunityId={id} />
+      ) : null}
     </div>
   );
 }
