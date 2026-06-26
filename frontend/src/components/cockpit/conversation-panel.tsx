@@ -75,7 +75,10 @@ export function ConversationPanel({
         aria-busy={sending}
       >
         {turns.map((turn) => (
-          <div key={turn.created_at + turn.role}>
+          <div
+            key={turn.created_at + turn.role}
+            className="animate-in fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none"
+          >
             {turn.role === "CONSULTANT" ? (
               <ConsultantTurn turn={turn} />
             ) : (

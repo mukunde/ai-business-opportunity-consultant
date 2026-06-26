@@ -47,7 +47,13 @@ export function Cockpit({ opportunityId }: { opportunityId: string }) {
   });
 
   if (interview.isLoading) {
-    return <Skeleton className="h-[70vh] w-full" />;
+    return (
+      <div className="grid gap-5 lg:grid-cols-[minmax(190px,22%)_1fr_minmax(210px,28%)]">
+        <Skeleton className="h-[60vh] rounded-xl" />
+        <Skeleton className="h-[72vh] rounded-xl" />
+        <Skeleton className="h-[60vh] rounded-xl" />
+      </div>
+    );
   }
 
   const notStarted =
