@@ -8,6 +8,13 @@ export type Opportunity = components["schemas"]["OpportunityRead"];
 export type OpportunityCreate = components["schemas"]["OpportunityCreate"];
 export type OpportunityStatus = Opportunity["status"];
 
+export type InterviewTurn = components["schemas"]["InterviewTurnResponse"];
+export type InterviewSession = components["schemas"]["InterviewSessionRead"];
+export type Turn = components["schemas"]["TurnRead"];
+export type ContextGraph = components["schemas"]["ContextGraphRead"];
+export type ContextNode = components["schemas"]["NodeRead"];
+export type Completeness = components["schemas"]["CompletenessRead"];
+
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -48,4 +55,19 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  startInterview: (id: string, message: string) =>
+    apiFetch<InterviewTurn>(`/opportunities/${id}/interview`, {
+      method: "POST",
+      body: JSON.stringify({ message }),
+    }),
+  continueInterview: (id: string, answer: string) =>
+    apiFetch<InterviewTurn>(`/opportunities/${id}/continue`, {
+      method: "POST",
+      body: JSON.stringify({ answer }),
+    }),
+  getInterview: (id: string) =>
+    apiFetch<InterviewSession>(`/opportunities/${id}/interview`),
+  getContext: (id: string) =>
+    apiFetch<ContextGraph>(`/opportunities/${id}/context`),
 };
