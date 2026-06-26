@@ -32,13 +32,50 @@ function Section({
   );
 }
 
-const SCORE_METRICS: { key: keyof Score; label: string }[] = [
-  { key: "roi_score", label: "ROI" },
-  { key: "impact_score", label: "Impact" },
-  { key: "feasibility_score", label: "Feasibility" },
-  { key: "risk_score", label: "Risk" },
-  { key: "strategic_alignment_score", label: "Strategic" },
-  { key: "time_to_value_score", label: "Time to value" },
+const SCORE_METRICS: {
+  key: keyof Score;
+  label: string;
+  formula: string;
+  rationale: string;
+}[] = [
+  {
+    key: "roi_score",
+    label: "ROI",
+    formula: "ROI readiness × 10",
+    rationale:
+      "Can we size the return? Driven by whether business volume and handling time are known, the inputs an ROI estimate needs.",
+  },
+  {
+    key: "impact_score",
+    label: "Impact",
+    formula: "your Impact input (1-10)",
+    rationale: "Analyst-judged business impact of solving this problem.",
+  },
+  {
+    key: "feasibility_score",
+    label: "Feasibility",
+    formula: "data readiness × 10",
+    rationale: "Is there data to build on? High when data availability is known.",
+  },
+  {
+    key: "risk_score",
+    label: "Risk",
+    formula: "(1 - completeness) × 5 + (1 - data readiness) × 5",
+    rationale:
+      "Rises with missing context and missing data. Lower is better; it is subtracted in the final score.",
+  },
+  {
+    key: "strategic_alignment_score",
+    label: "Strategic",
+    formula: "your Strategic alignment input (1-10)",
+    rationale: "Analyst-judged fit with strategy.",
+  },
+  {
+    key: "time_to_value_score",
+    label: "Time to value",
+    formula: "data readiness × 10",
+    rationale: "Proxied by feasibility: more data-ready means value lands sooner.",
+  },
 ];
 
 function Slider({
@@ -105,7 +142,7 @@ function ScoringSection({
       </Button>
 
       {score ? (
-        <div className="mt-5 border-t pt-5">
+        <div className="mt-5 space-y-4 border-t pt-5">
           <div className="flex items-end gap-6">
             <div>
               <p className="text-muted-foreground text-xs">Priority score</p>
@@ -114,23 +151,56 @@ function ScoringSection({
                 <span className="text-muted-foreground text-base">/10</span>
               </p>
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Confidence</p>
-              <p className="font-mono text-xl tabular-nums">
-                {Math.round(score.confidence * 100)}%
+            <details className="group">
+              <summary className="cursor-pointer list-none">
+                <p className="text-muted-foreground text-xs">
+                  Confidence
+                  <span className="ml-1 opacity-60 group-open:hidden">(?)</span>
+                </p>
+                <p className="font-mono text-xl tabular-nums">
+                  {Math.round(score.confidence * 100)}%
+                </p>
+              </summary>
+              <p className="text-muted-foreground mt-1 max-w-xs text-xs">
+                = overall context completeness. An incomplete interview lowers
+                the score&apos;s confidence rather than faking certainty.
               </p>
-            </div>
+            </details>
           </div>
-          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-3">
+
+          <div className="bg-muted/50 text-muted-foreground rounded-md p-3 text-xs">
+            <p className="text-foreground font-mono">
+              Final = 0.3×ROI + 0.3×ICE + 0.2×Strategic - 0.2×Risk (0-10)
+            </p>
+            <p className="mt-1.5">
+              ICE = Impact × Confidence × Ease (normalized to 0-10). Click any
+              metric below for its rationale and calculation.
+            </p>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
             {SCORE_METRICS.map((m) => (
-              <div key={m.key} className="flex justify-between text-sm">
-                <dt className="text-muted-foreground">{m.label}</dt>
-                <dd className="font-mono tabular-nums">
-                  {(score[m.key] as number).toFixed(1)}
-                </dd>
-              </div>
+              <details
+                key={m.key}
+                className="group rounded-md border px-3 py-2"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between text-sm">
+                  <span className="text-muted-foreground group-hover:text-foreground transition-colors">
+                    {m.label}
+                  </span>
+                  <span className="font-mono tabular-nums">
+                    {(score[m.key] as number).toFixed(1)}
+                  </span>
+                </summary>
+                <div className="text-muted-foreground mt-2 space-y-1.5 border-t pt-2 text-xs">
+                  <p>{m.rationale}</p>
+                  <p className="text-foreground font-mono">
+                    {m.label} = {m.formula}
+                  </p>
+                </div>
+              </details>
             ))}
-          </dl>
+          </div>
         </div>
       ) : null}
     </Section>
