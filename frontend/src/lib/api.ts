@@ -34,11 +34,26 @@ export class ApiError extends Error {
   }
 }
 
+const TIMEOUT_MS = 15_000;
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      signal: controller.signal,
+      headers: { "Content-Type": "application/json", ...init?.headers },
+    });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") {
+      throw new ApiError(0, "The API did not respond in time. Is the backend running?");
+    }
+    throw new ApiError(0, "Could not reach the API. Is the backend running?");
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {
