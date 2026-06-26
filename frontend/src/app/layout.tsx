@@ -39,7 +39,7 @@ export default function RootLayout({
       <body className="bg-background text-foreground min-h-full flex flex-col">
         <Providers>
           <header className="bg-card/80 supports-[backdrop-filter]:bg-card/60 sticky top-0 z-30 border-b backdrop-blur">
-            <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-6">
+            <div className="flex h-14 items-center gap-2 px-6">
               <Link
                 href="/"
                 className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight"
@@ -49,9 +49,7 @@ export default function RootLayout({
               </Link>
             </div>
           </header>
-          <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
-            {children}
-          </main>
+          <main className="w-full flex-1 px-6 py-8">{children}</main>
           <Toaster />
         </Providers>
       </body>
