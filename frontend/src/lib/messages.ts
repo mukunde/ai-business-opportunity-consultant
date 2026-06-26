@@ -144,6 +144,7 @@ export const fr: Record<string, string> = {
   "Generating…": "Génération…",
   "Regenerate report": "Régénérer le rapport",
   "Generate report": "Générer le rapport",
+  "Download PDF": "Télécharger le PDF",
   "Get a recommendation first.": "Obtenez d'abord une recommandation.",
   "Executive summary": "Résumé exécutif",
   "Detailed assessment": "Évaluation détaillée",

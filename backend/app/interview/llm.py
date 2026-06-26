@@ -130,4 +130,9 @@ def get_llm() -> LLMClient:
         from app.interview.fake import FakeLLM
 
         return FakeLLM()
+    if not settings.anthropic_api_key:
+        raise RuntimeError(
+            "LLM_PROVIDER is 'claude' but ANTHROPIC_API_KEY is not set. "
+            "Add it to backend/.env, or set LLM_PROVIDER=fake to run offline."
+        )
     return ClaudeClient(settings)

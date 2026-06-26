@@ -1,17 +1,25 @@
 """HTTP routes for reporting (Phase 1, Epic 6)."""
 
+import re
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app import crud
 from app.db.session import get_db
 from app.recommendation import service as recommendation_service
 from app.reporting import service
+from app.reporting.pdf import render_report_pdf
 from app.schemas.reporting import ReportBundle, ReportDocumentRead
 
 router = APIRouter(prefix="/opportunities", tags=["reporting"])
+
+
+def _pdf_filename(title: str) -> str:
+    """Slugify the opportunity title into a safe download filename."""
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", title).strip("-").lower()
+    return f"{slug or 'opportunity'}-report.pdf"
 
 
 @router.post(
@@ -45,4 +53,27 @@ def get_report(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> Repo
     return ReportBundle(
         executive_summary=ReportDocumentRead.model_validate(summary),
         detailed_assessment=ReportDocumentRead.model_validate(assessment),
+    )
+
+
+@router.get(
+    "/{opportunity_id}/report.pdf",
+    response_class=Response,
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+def get_report_pdf(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> Response:
+    """Return the latest reports rendered as a single downloadable PDF."""
+    summary, assessment = service.latest_reports(db, opportunity_id)
+    if summary is None or assessment is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No report generated yet")
+    opportunity = crud.opportunity.get_opportunity(db, opportunity_id)
+    pdf_bytes = render_report_pdf(
+        summary_md=summary.markdown_content,
+        assessment_md=assessment.markdown_content,
+    )
+    filename = _pdf_filename(opportunity.title if opportunity else "opportunity")
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
