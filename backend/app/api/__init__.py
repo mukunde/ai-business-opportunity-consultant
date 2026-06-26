@@ -7,6 +7,7 @@ from app.api.routes import (
     interview,
     opportunities,
     recommendation,
+    reporting,
     scoring,
 )
 
@@ -16,5 +17,6 @@ api_router.include_router(interview.router)
 api_router.include_router(context.router)
 api_router.include_router(scoring.router)
 api_router.include_router(recommendation.router)
+api_router.include_router(reporting.router)
 
 __all__ = ["api_router"]

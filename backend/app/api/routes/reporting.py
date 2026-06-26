@@ -1,0 +1,48 @@
+"""HTTP routes for reporting (Phase 1, Epic 6)."""
+
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app import crud
+from app.db.session import get_db
+from app.recommendation import service as recommendation_service
+from app.reporting import service
+from app.schemas.reporting import ReportBundle, ReportDocumentRead
+
+router = APIRouter(prefix="/opportunities", tags=["reporting"])
+
+
+@router.post(
+    "/{opportunity_id}/report",
+    response_model=ReportBundle,
+    status_code=status.HTTP_201_CREATED,
+)
+def generate_report(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> ReportBundle:
+    """Generate the executive summary and detailed assessment (status -> REVIEW)."""
+    opportunity = crud.opportunity.get_opportunity(db, opportunity_id)
+    if opportunity is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Opportunity not found")
+    if recommendation_service.latest_recommendation(db, opportunity_id) is None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "No recommendation to report on yet; recommend first",
+        )
+    summary, assessment = service.generate_reports(db, opportunity)
+    return ReportBundle(
+        executive_summary=ReportDocumentRead.model_validate(summary),
+        detailed_assessment=ReportDocumentRead.model_validate(assessment),
+    )
+
+
+@router.get("/{opportunity_id}/report", response_model=ReportBundle)
+def get_report(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> ReportBundle:
+    """Return the latest generated reports for an opportunity."""
+    summary, assessment = service.latest_reports(db, opportunity_id)
+    if summary is None or assessment is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No report generated yet")
+    return ReportBundle(
+        executive_summary=ReportDocumentRead.model_validate(summary),
+        detailed_assessment=ReportDocumentRead.model_validate(assessment),
+    )
