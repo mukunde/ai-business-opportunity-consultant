@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # this threshold, then hands off to structuring (TRD section 4.3).
     context_completeness_threshold: float = 1.0
 
+    # CORS: comma-separated browser origins allowed to call the API (the Next.js
+    # frontend in dev). Parsed into a list in main.py.
+    cors_origins: str = "http://localhost:3000"
+
 
 @lru_cache
 def get_settings() -> Settings:
