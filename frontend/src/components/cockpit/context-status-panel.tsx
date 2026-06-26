@@ -1,3 +1,4 @@
+import { InfoTip } from "@/components/info-tip";
 import type { Completeness, ContextNode } from "@/lib/api";
 
 function Ring({ value }: { value: number }) {
@@ -35,11 +36,22 @@ function Ring({ value }: { value: number }) {
   );
 }
 
-function Bar({ label, value }: { label: string; value: number }) {
+function Bar({
+  label,
+  value,
+  tip,
+}: {
+  label: string;
+  value: number;
+  tip?: string;
+}) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-muted-foreground">{label}</span>
+        <span className="text-muted-foreground">
+          {label}
+          {tip ? <InfoTip text={tip} /> : null}
+        </span>
         <span className="font-mono tabular-nums">{Math.round(value * 100)}%</span>
       </div>
       <div className="bg-muted h-1.5 overflow-hidden rounded-full">
@@ -75,16 +87,23 @@ export function ContextStatusPanel({
         <Bar
           label="Business context"
           value={completeness?.business_context_score ?? 0}
+          tip="Do we understand the business problem and who owns it? Built from business volume and the process owner."
         />
         <Bar
           label="Process understanding"
           value={completeness?.process_understanding_score ?? 0}
+          tip="Do we understand how the current process works? Built from the average handling time."
         />
         <Bar
           label="Data readiness"
           value={completeness?.data_readiness_score ?? 0}
+          tip="Is there data available to build the AI on? Drives feasibility and time to value; its absence raises risk."
         />
-        <Bar label="ROI readiness" value={completeness?.roi_readiness_score ?? 0} />
+        <Bar
+          label="ROI readiness"
+          value={completeness?.roi_readiness_score ?? 0}
+          tip="Can we estimate the return? Needs both business volume and handling time to size the savings."
+        />
       </div>
 
       <div>
