@@ -587,6 +587,10 @@ export interface components {
             completeness?: number | null;
             /** Recommendation Type */
             recommendation_type?: string | null;
+            /** Impact Score */
+            impact_score?: number | null;
+            /** Feasibility Score */
+            feasibility_score?: number | null;
         };
         /**
          * OpportunityUpdate

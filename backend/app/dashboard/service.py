@@ -35,6 +35,8 @@ def opportunity_summaries(
                 confidence=score.confidence if score else None,
                 completeness=completeness.overall_score if completeness else None,
                 recommendation_type=recommendation.type.value if recommendation else None,
+                impact_score=score.impact_score if score else None,
+                feasibility_score=score.feasibility_score if score else None,
             )
         )
     return summaries

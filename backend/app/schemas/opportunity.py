@@ -53,3 +53,6 @@ class OpportunitySummaryRead(BaseModel):
     confidence: float | None = None
     completeness: float | None = None
     recommendation_type: str | None = None
+    # Quadrant axes for the portfolio matrix (Impact x Feasibility).
+    impact_score: float | None = None
+    feasibility_score: float | None = None
