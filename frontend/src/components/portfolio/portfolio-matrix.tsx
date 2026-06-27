@@ -21,6 +21,12 @@ const DOT_FILL: Record<Quadrant, string> = {
   low: "fill-zinc-400",
 };
 
+const LEGEND: { key: Quadrant; label: string; swatch: string }[] = [
+  { key: "quick", label: "Quick Wins", swatch: "bg-emerald-500" },
+  { key: "bet", label: "Strategic Bets", swatch: "bg-amber-500" },
+  { key: "low", label: "Low Priority", swatch: "bg-zinc-400" },
+];
+
 // Plot geometry (SVG units).
 const W = 480;
 const H = 440;
@@ -30,6 +36,8 @@ const PLOT_H = H - PAD.t - PAD.b;
 
 const x = (feasibility: number) => PAD.l + (feasibility / 10) * PLOT_W;
 const y = (impact: number) => PAD.t + (1 - impact / 10) * PLOT_H;
+const radius = (finalScore: number | null | undefined) =>
+  5 + ((finalScore ?? 0) / 10) * 4;
 
 function truncate(s: string, n = 16) {
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;
@@ -40,140 +48,177 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const router = useRouter();
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="w-full"
-      role="img"
-      aria-label={t("Impact vs feasibility matrix")}
-    >
-      {/* Quadrant tints */}
-      <rect
-        x={x(MID)}
-        y={PAD.t}
-        width={PLOT_W / 2}
-        height={PLOT_H / 2}
-        className="fill-emerald-500/8"
-      />
-      <rect
-        x={PAD.l}
-        y={PAD.t}
-        width={PLOT_W / 2}
-        height={PLOT_H / 2}
-        className="fill-amber-500/8"
-      />
-      <rect
-        x={PAD.l}
-        y={y(MID)}
-        width={PLOT_W}
-        height={PLOT_H / 2}
-        className="fill-muted/40"
-      />
+    <div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full"
+        role="img"
+        aria-label={t("Impact vs feasibility matrix")}
+      >
+        {/* Quadrant tints */}
+        <rect
+          x={x(MID)}
+          y={PAD.t}
+          width={PLOT_W / 2}
+          height={PLOT_H / 2}
+          className="fill-emerald-500/8"
+        />
+        <rect
+          x={PAD.l}
+          y={PAD.t}
+          width={PLOT_W / 2}
+          height={PLOT_H / 2}
+          className="fill-amber-500/8"
+        />
+        <rect
+          x={PAD.l}
+          y={y(MID)}
+          width={PLOT_W}
+          height={PLOT_H / 2}
+          className="fill-muted/40"
+        />
 
-      {/* Quadrant labels */}
-      <text
-        x={x(MID) + PLOT_W / 4}
-        y={PAD.t + 18}
-        textAnchor="middle"
-        className="fill-emerald-700 dark:fill-emerald-400 text-[11px] font-medium tracking-wide uppercase"
-      >
-        {t("Quick Wins")}
-      </text>
-      <text
-        x={PAD.l + PLOT_W / 4}
-        y={PAD.t + 18}
-        textAnchor="middle"
-        className="fill-amber-700 dark:fill-amber-400 text-[11px] font-medium tracking-wide uppercase"
-      >
-        {t("Strategic Bets")}
-      </text>
-      <text
-        x={PAD.l + PLOT_W / 2}
-        y={H - PAD.b - 10}
-        textAnchor="middle"
-        className="fill-muted-foreground text-[11px] font-medium tracking-wide uppercase"
-      >
-        {t("Low Priority")}
-      </text>
+        {/* Quadrant labels */}
+        <text
+          x={x(MID) + PLOT_W / 4}
+          y={PAD.t + 18}
+          textAnchor="middle"
+          className="fill-emerald-700 dark:fill-emerald-400 text-[11px] font-medium tracking-wide uppercase"
+        >
+          {t("Quick Wins")}
+        </text>
+        <text
+          x={PAD.l + PLOT_W / 4}
+          y={PAD.t + 18}
+          textAnchor="middle"
+          className="fill-amber-700 dark:fill-amber-400 text-[11px] font-medium tracking-wide uppercase"
+        >
+          {t("Strategic Bets")}
+        </text>
+        <text
+          x={PAD.l + PLOT_W / 2}
+          y={H - PAD.b - 10}
+          textAnchor="middle"
+          className="fill-muted-foreground text-[11px] font-medium tracking-wide uppercase"
+        >
+          {t("Low Priority")}
+        </text>
 
-      {/* Axes frame + midlines */}
-      <rect
-        x={PAD.l}
-        y={PAD.t}
-        width={PLOT_W}
-        height={PLOT_H}
-        fill="none"
-        className="stroke-border"
-        strokeWidth={1}
-      />
-      <line
-        x1={x(MID)}
-        y1={PAD.t}
-        x2={x(MID)}
-        y2={PAD.t + PLOT_H}
-        className="stroke-border"
-        strokeDasharray="4 4"
-      />
-      <line
-        x1={PAD.l}
-        y1={y(MID)}
-        x2={PAD.l + PLOT_W}
-        y2={y(MID)}
-        className="stroke-border"
-        strokeDasharray="4 4"
-      />
+        {/* Axes frame + midlines */}
+        <rect
+          x={PAD.l}
+          y={PAD.t}
+          width={PLOT_W}
+          height={PLOT_H}
+          fill="none"
+          className="stroke-border"
+          strokeWidth={1}
+        />
+        <line
+          x1={x(MID)}
+          y1={PAD.t}
+          x2={x(MID)}
+          y2={PAD.t + PLOT_H}
+          className="stroke-border"
+          strokeDasharray="4 4"
+        />
+        <line
+          x1={PAD.l}
+          y1={y(MID)}
+          x2={PAD.l + PLOT_W}
+          y2={y(MID)}
+          className="stroke-border"
+          strokeDasharray="4 4"
+        />
 
-      {/* Axis titles */}
-      <text
-        x={PAD.l + PLOT_W / 2}
-        y={H - 8}
-        textAnchor="middle"
-        className="fill-foreground text-xs font-medium"
-      >
-        {t("Feasibility")} {"→"}
-      </text>
-      <text
-        x={-(PAD.t + PLOT_H / 2)}
-        y={14}
-        transform="rotate(-90)"
-        textAnchor="middle"
-        className="fill-foreground text-xs font-medium"
-      >
-        {t("Impact")} {"→"}
-      </text>
+        {/* Axis titles */}
+        <text
+          x={PAD.l + PLOT_W / 2}
+          y={H - 8}
+          textAnchor="middle"
+          className="fill-foreground text-xs font-medium"
+        >
+          {t("Feasibility")} {"→"}
+        </text>
+        <text
+          x={-(PAD.t + PLOT_H / 2)}
+          y={14}
+          transform="rotate(-90)"
+          textAnchor="middle"
+          className="fill-foreground text-xs font-medium"
+        >
+          {t("Impact")} {"→"}
+        </text>
 
-      {/* Points */}
-      {items.map((o) => {
-        const impact = o.impact_score as number;
-        const feas = o.feasibility_score as number;
-        const r = 5 + ((o.final_score ?? 0) / 10) * 4;
-        const q = quadrantOf(impact, feas);
-        return (
-          <g
-            key={o.id}
-            className="cursor-pointer"
-            onClick={() => router.push(`/opportunities/${o.id}`)}
-          >
-            <title>
-              {o.title}: {t("Impact")} {impact.toFixed(1)}, {t("Feasibility")}{" "}
-              {feas.toFixed(1)}
-            </title>
-            <circle
-              cx={x(feas)}
-              cy={y(impact)}
-              r={r}
-              className={`${DOT_FILL[q]} stroke-background`}
-              strokeWidth={1.5}
-            />
-            <text
-              x={x(feas) + r + 3}
-              y={y(impact) + 3}
-              className="fill-foreground text-[10px]"
+        {/* Points: staggered fade + zoom entrance, each scaling from its own dot. */}
+        {items.map((o, i) => {
+          const impact = o.impact_score as number;
+          const feas = o.feasibility_score as number;
+          const r = radius(o.final_score);
+          const q = quadrantOf(impact, feas);
+          const go = () => router.push(`/opportunities/${o.id}`);
+          return (
+            <g
+              key={o.id}
+              className="animate-in fade-in zoom-in-75 fill-mode-both motion-reduce:animate-none group cursor-pointer outline-none duration-500 ease-out"
+              style={{
+                animationDelay: `${Math.min(i, 14) * 45}ms`,
+                transformBox: "fill-box",
+                transformOrigin: "center",
+              }}
+              role="link"
+              tabIndex={0}
+              aria-label={`${o.title}: ${t("Impact")} ${impact.toFixed(1)}, ${t("Feasibility")} ${feas.toFixed(1)}`}
+              onClick={go}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  go();
+                }
+              }}
             >
-              {truncate(o.title)}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+              <title>
+                {o.title}: {t("Impact")} {impact.toFixed(1)}, {t("Feasibility")}{" "}
+                {feas.toFixed(1)}
+              </title>
+              <circle
+                cx={x(feas)}
+                cy={y(impact)}
+                r={r}
+                className={`${DOT_FILL[q]} stroke-background group-hover:stroke-foreground group-focus-visible:stroke-foreground transition-[stroke]`}
+                strokeWidth={1.5}
+              />
+              <text
+                x={x(feas) + r + 3}
+                y={y(impact) + 3}
+                className="fill-foreground group-hover:font-medium text-[10px]"
+              >
+                {truncate(o.title)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Legend: colour encodes the quadrant, dot radius encodes priority score. */}
+      <div className="text-muted-foreground mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t pt-3 text-xs">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {LEGEND.map((l) => (
+            <span key={l.key} className="flex items-center gap-1.5">
+              <span
+                className={`size-2 rounded-full ${l.swatch}`}
+                aria-hidden
+              />
+              {t(l.label)}
+            </span>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5" aria-hidden>
+          <span className="bg-muted-foreground/60 size-1.5 rounded-full" />
+          <span className="bg-muted-foreground/60 size-3 rounded-full" />
+          <span>{t("Priority score")}</span>
+        </div>
+      </div>
+    </div>
   );
 }
