@@ -47,7 +47,7 @@ function truncate(s: string, n = 16) {
 
 const MIN_ZOOM = 0.5; // below 1 the matrix shrinks to fit small screens
 const MAX_ZOOM = 3;
-const ZOOM_STEP = 0.25;
+const ZOOM_STEP = 0.125;
 
 const controlBtn =
   "bg-card/90 text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40 grid size-8 place-items-center rounded-md border shadow-sm backdrop-blur transition-colors";
@@ -58,7 +58,7 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const [zoom, setZoom] = useState(1);
 
   const setZoomClamped = (z: number) =>
-    setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 100) / 100)));
+    setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 1000) / 1000)));
 
   // Opportunities at the same impact/feasibility coincide on the plot; collapse
   // them into one marker carrying a count badge instead of overlapping dots.
