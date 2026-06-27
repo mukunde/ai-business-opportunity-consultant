@@ -157,6 +157,11 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
           const r = radius(o.final_score);
           const q = quadrantOf(impact, feas);
           const go = () => router.push(`/opportunities/${o.id}`);
+          // Flip the label to the left of the dot when a right-side label would
+          // overflow the viewBox (points near the high-feasibility edge).
+          const label = truncate(o.title);
+          const flipLeft = x(feas) + r + 3 + label.length * 5.6 > W - 4;
+          const labelX = flipLeft ? x(feas) - r - 3 : x(feas) + r + 3;
           return (
             <g
               key={o.id}
@@ -189,11 +194,12 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
                 strokeWidth={1.5}
               />
               <text
-                x={x(feas) + r + 3}
+                x={labelX}
                 y={y(impact) + 3}
+                textAnchor={flipLeft ? "end" : "start"}
                 className="fill-foreground group-hover:font-medium text-[10px]"
               >
-                {truncate(o.title)}
+                {label}
               </text>
             </g>
           );
