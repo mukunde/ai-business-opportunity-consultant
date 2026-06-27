@@ -28,17 +28,30 @@ DIMENSION_SLOTS: dict[str, list[str]] = {
 }
 
 
-def compute_completeness(context: dict[str, str]) -> dict[str, float]:
-    """Fraction of each dimension's slots that are filled, plus the overall."""
+def compute_completeness(
+    context: dict[str, str], data_readiness: float | None = None
+) -> dict[str, float]:
+    """Fraction of each dimension's slots that are filled, plus the overall.
+
+    ``data_readiness`` is special: it measures how usable the data actually is
+    (the LLM's 0-1 assessment), not merely whether the question was answered, so
+    "we have no data" yields low feasibility rather than maxing it out. When the
+    assessment is absent it falls back to slot presence.
+    """
 
     def dimension(slots: list[str]) -> float:
         return sum(1 for slot in slots if context.get(slot)) / len(slots)
 
     overall = sum(1 for slot in SLOT_KEYS if context.get(slot)) / len(SLOT_KEYS)
+    data_readiness_score = (
+        data_readiness
+        if data_readiness is not None
+        else dimension(DIMENSION_SLOTS["data_readiness"])
+    )
     return {
         "business_context_score": dimension(DIMENSION_SLOTS["business_context"]),
         "process_understanding_score": dimension(DIMENSION_SLOTS["process_understanding"]),
-        "data_readiness_score": dimension(DIMENSION_SLOTS["data_readiness"]),
+        "data_readiness_score": data_readiness_score,
         "roi_readiness_score": dimension(DIMENSION_SLOTS["roi_readiness"]),
         "overall_score": overall,
     }
@@ -104,4 +117,5 @@ def project_context(db: Session, opportunity_id: uuid.UUID, state: OpportunitySt
             )
         )
 
-    db.add(ContextCompleteness(opportunity_id=opportunity_id, **compute_completeness(context)))
+    completeness = compute_completeness(context, state.get("data_readiness"))
+    db.add(ContextCompleteness(opportunity_id=opportunity_id, **completeness))

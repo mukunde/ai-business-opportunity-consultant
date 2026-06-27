@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Literal, Protocol
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.config import Settings
 from app.interview import prompts
@@ -30,6 +30,16 @@ class ExtractedContext(BaseModel):
     data_availability: str | None = None
     process_owner: str | None = None
     assumptions: list[str] = []
+    data_readiness: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Assessment of how usable the available data is for building the AI, "
+            "from 0.0 (no usable data exists) to 1.0 (abundant, clean, ready data). "
+            "Base it on what the user says about data; null if data was not discussed."
+        ),
+    )
 
 
 class StructuredOpportunity(BaseModel):

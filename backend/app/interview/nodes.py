@@ -33,7 +33,10 @@ def make_extract_context(llm: LLMClient) -> Node:
             if value:
                 context[key] = value
         assumptions = list(state.get("assumptions", [])) + list(extracted.assumptions)
-        return {"context": context, "assumptions": assumptions}
+        partial: dict = {"context": context, "assumptions": assumptions}
+        if extracted.data_readiness is not None:
+            partial["data_readiness"] = extracted.data_readiness
+        return partial
 
     return extract_context
 
