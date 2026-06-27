@@ -5,6 +5,7 @@
 import type { components } from "./api-types";
 
 export type Opportunity = components["schemas"]["OpportunityRead"];
+export type OpportunitySummary = components["schemas"]["OpportunitySummaryRead"];
 export type OpportunityCreate = components["schemas"]["OpportunityCreate"];
 export type OpportunityStatus = Opportunity["status"];
 
@@ -72,6 +73,8 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   listOpportunities: () => apiFetch<Opportunity[]>("/opportunities"),
+  listOpportunitySummaries: () =>
+    apiFetch<OpportunitySummary[]>("/opportunities/summary"),
   getOpportunity: (id: string) => apiFetch<Opportunity>(`/opportunities/${id}`),
   createOpportunity: (data: OpportunityCreate) =>
     apiFetch<Opportunity>("/opportunities", {
