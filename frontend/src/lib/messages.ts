@@ -188,6 +188,7 @@ export const fr: Record<string, string> = {
   "Every scored opportunity placed by impact and feasibility, so the quick wins and the strategic bets separate themselves.":
     "Chaque opportunité scorée placée selon impact et faisabilité, pour que les gains rapides et les paris stratégiques se distinguent d'eux-mêmes.",
   "Impact vs feasibility matrix": "Matrice impact / faisabilité",
+  opportunities: "opportunités",
   "Nothing to plot yet": "Rien à afficher pour l'instant",
   "Score an opportunity to place it on the matrix.":
     "Scorez une opportunité pour la placer sur la matrice.",
