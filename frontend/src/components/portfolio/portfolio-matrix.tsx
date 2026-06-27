@@ -48,6 +48,7 @@ function truncate(s: string, n = 16) {
 const MIN_ZOOM = 0.5; // below 1 the matrix shrinks to fit small screens
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.125;
+const DEFAULT_ZOOM = 0.625; // fits the whole quadrant on a small laptop
 
 const controlBtn =
   "bg-card/90 text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40 grid size-8 place-items-center rounded-md border shadow-sm backdrop-blur transition-colors";
@@ -55,7 +56,7 @@ const controlBtn =
 export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const t = useT();
   const router = useRouter();
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
   const setZoomClamped = (z: number) =>
     setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 1000) / 1000)));
@@ -284,8 +285,8 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
           </button>
           <button
             type="button"
-            onClick={() => setZoom(1)}
-            disabled={zoom === 1}
+            onClick={() => setZoom(DEFAULT_ZOOM)}
+            disabled={zoom === DEFAULT_ZOOM}
             aria-label={t("Reset zoom")}
             className={controlBtn}
           >
