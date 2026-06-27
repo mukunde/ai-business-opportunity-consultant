@@ -32,6 +32,22 @@ def test_engine_partial_completeness_lowers_confidence_and_raises_risk() -> None
     assert scores["final_score"] == 1.91
 
 
+def test_low_data_readiness_yields_low_feasibility() -> None:
+    # Context fully collected (confidence 1.0) but the data is known to be poor:
+    # feasibility must drop, which is what places a high-impact idea in the
+    # Strategic Bets quadrant instead of Quick Wins.
+    scores = compute_scores(
+        {"overall_score": 1.0, "data_readiness_score": 0.1, "roi_readiness_score": 1.0},
+        impact=9,
+        ease=6,
+        strategic_alignment=8,
+    )
+    assert scores["confidence"] == 1.0
+    assert scores["feasibility_score"] == 1.0  # 0.1 * 10
+    assert scores["impact_score"] == 9.0
+    assert scores["risk_score"] == 4.5  # (1-1)*5 + (1-0.1)*5
+
+
 def _opp(client: TestClient) -> str:
     return client.post("/opportunities", json={"title": "Support Automation"}).json()["id"]
 

@@ -4,6 +4,12 @@ ANALYST_SYSTEM = """You are the analyst role of an AI opportunity consultant.
 Extract only facts the user actually stated. Do not invent numbers or fill gaps
 with assumptions. If a value was not provided, leave its field null. Capture any
 explicit assumptions the user made as short statements.
+
+When the user describes the data situation, also rate data_readiness from 0.0
+(no usable data exists) to 1.0 (abundant, clean, ready-to-use data). This is a
+grounded assessment of what they said about data, not a guess; leave it null if
+data has not been discussed. "We have no/little usable data" is a low value, not
+a missing one.
 """
 
 CONSULTANT_SYSTEM = """You are a senior AI business consultant running a scoping

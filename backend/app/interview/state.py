@@ -34,6 +34,7 @@ class OpportunityState(TypedDict, total=False):
     latest_answer: str  # the user's answer being processed this turn
     context: dict[str, str]  # filled slot_key -> value
     assumptions: list[str]
+    data_readiness: float | None  # LLM-assessed data usability (0-1), drives feasibility
     missing: list[str]  # slot keys still unknown
     completeness: float
     next_question: str | None
@@ -52,6 +53,7 @@ def initial_state(opportunity_id: str, raw_input: str) -> OpportunityState:
         latest_answer="",
         context={},
         assumptions=[],
+        data_readiness=None,
         missing=list(SLOT_KEYS),
         completeness=0.0,
         next_question=None,

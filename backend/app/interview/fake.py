@@ -28,6 +28,10 @@ class FakeLLM:
             fields[target] = latest_answer
         if target == "business_volume":
             fields["assumptions"] = ["Requests are repetitive"]
+        if target == "data_availability":
+            # Deterministic stub: treat answered = fully data-ready. Real Claude
+            # grades this from the content; see ANALYST_SYSTEM.
+            fields["data_readiness"] = 1.0
         return ExtractedContext(**fields)
 
     def next_question(self, target_slot: str, state: OpportunityState) -> str:

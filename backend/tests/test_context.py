@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.context.enrichment import enrich_semantics
+from app.context.projection import compute_completeness
 from app.interview.llm import ContextElement, InferredContradiction, InferredGraph
 from app.models.context import ContextNode, ContextNodeType, Contradiction
 from app.models.opportunity import Opportunity
@@ -71,6 +72,21 @@ def test_context_complete_after_full_interview(client: TestClient) -> None:
     # A FACT node references the evidence that produced it.
     fact = next(n for n in body["nodes"] if n["type"] == "FACT")
     assert fact["source_id"] is not None
+
+
+def test_completeness_uses_assessed_data_readiness() -> None:
+    ctx = {
+        "business_volume": "10k",
+        "handling_time": "days",
+        "data_availability": "almost none",
+        "process_owner": "John",
+    }
+    # The slot is answered, but the data is poor: readiness reflects the content.
+    assert compute_completeness(ctx, 0.1)["data_readiness_score"] == 0.1
+    # Falls back to slot presence when no assessment is supplied.
+    assert compute_completeness(ctx)["data_readiness_score"] == 1.0
+    # Overall context completeness (drives confidence) stays presence-based.
+    assert compute_completeness(ctx, 0.1)["overall_score"] == 1.0
 
 
 def test_semantic_relationships_inferred_on_completion(client: TestClient) -> None:
