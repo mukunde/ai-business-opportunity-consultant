@@ -1,6 +1,8 @@
 "use client";
 
+import { Maximize, ZoomIn, ZoomOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { useT } from "@/lib/i18n";
 import type { OpportunitySummary } from "@/lib/api";
@@ -43,9 +45,20 @@ function truncate(s: string, n = 16) {
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;
 }
 
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.5;
+
+const controlBtn =
+  "bg-card/90 text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40 grid size-8 place-items-center rounded-md border shadow-sm backdrop-blur transition-colors";
+
 export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const t = useT();
   const router = useRouter();
+  const [zoom, setZoom] = useState(1);
+
+  const setZoomClamped = (z: number) =>
+    setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 10) / 10)));
 
   // Opportunities at the same impact/feasibility coincide on the plot; collapse
   // them into one marker carrying a count badge instead of overlapping dots.
@@ -59,12 +72,15 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
 
   return (
     <div>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full"
-        role="img"
-        aria-label={t("Impact vs feasibility matrix")}
-      >
+      <div className="relative">
+        <div className="max-h-[75vh] overflow-auto rounded-lg">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="block h-auto"
+            style={{ width: `${zoom * 100}%` }}
+            role="img"
+            aria-label={t("Impact vs feasibility matrix")}
+          >
         {/* Quadrant tints */}
         <rect
           x={x(MID)}
@@ -244,7 +260,39 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
             </g>
           );
         })}
-      </svg>
+          </svg>
+        </div>
+
+        <div className="absolute top-2 right-2 flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={() => setZoomClamped(zoom + ZOOM_STEP)}
+            disabled={zoom >= MAX_ZOOM}
+            aria-label={t("Zoom in")}
+            className={controlBtn}
+          >
+            <ZoomIn className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoomClamped(zoom - ZOOM_STEP)}
+            disabled={zoom <= MIN_ZOOM}
+            aria-label={t("Zoom out")}
+            className={controlBtn}
+          >
+            <ZoomOut className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setZoom(1)}
+            disabled={zoom === 1}
+            aria-label={t("Reset zoom")}
+            className={controlBtn}
+          >
+            <Maximize className="size-4" />
+          </button>
+        </div>
+      </div>
 
       {/* Legend: colour encodes the quadrant, dot radius encodes priority score. */}
       <div className="text-muted-foreground mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t pt-3 text-xs">
