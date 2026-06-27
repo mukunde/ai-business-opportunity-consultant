@@ -47,6 +47,16 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const t = useT();
   const router = useRouter();
 
+  // Opportunities at the same impact/feasibility coincide on the plot; collapse
+  // them into one marker carrying a count badge instead of overlapping dots.
+  const groups = Object.values(
+    items.reduce<Record<string, OpportunitySummary[]>>((acc, o) => {
+      const key = `${(o.impact_score as number).toFixed(1)}|${(o.feasibility_score as number).toFixed(1)}`;
+      (acc[key] ??= []).push(o);
+      return acc;
+    }, {}),
+  );
+
   return (
     <div>
       <svg
@@ -150,57 +160,87 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
           {t("Impact")} {"→"}
         </text>
 
-        {/* Points: staggered fade + zoom entrance, each scaling from its own dot. */}
-        {items.map((o, i) => {
-          const impact = o.impact_score as number;
-          const feas = o.feasibility_score as number;
-          const r = radius(o.final_score);
+        {/* Markers: one per coincident group, staggered fade + zoom entrance. */}
+        {groups.map((group, i) => {
+          const first = group[0];
+          const impact = first.impact_score as number;
+          const feas = first.feasibility_score as number;
+          const count = group.length;
+          const single = count === 1;
           const q = quadrantOf(impact, feas);
-          const go = () => router.push(`/opportunities/${o.id}`);
-          // Flip the label to the left of the dot when a right-side label would
-          // overflow the viewBox (points near the high-feasibility edge).
-          const label = truncate(o.title);
-          const flipLeft = x(feas) + r + 3 + label.length * 5.6 > W - 4;
-          const labelX = flipLeft ? x(feas) - r - 3 : x(feas) + r + 3;
+          const cx = x(feas);
+          const cy = y(impact);
+          const r =
+            Math.max(...group.map((o) => radius(o.final_score))) + (single ? 0 : 2);
+          const go = () => router.push(`/opportunities/${first.id}`);
+
+          // Flip the label left when a right-side label would overflow the viewBox.
+          const label = single ? truncate(first.title) : `${count} ${t("opportunities")}`;
+          const flipLeft = cx + r + 3 + label.length * 5.6 > W - 4;
+          const labelX = flipLeft ? cx - r - 3 : cx + r + 3;
+          const tip = single
+            ? `${first.title}: ${t("Impact")} ${impact.toFixed(1)}, ${t("Feasibility")} ${feas.toFixed(1)}`
+            : group.map((o) => o.title).join(", ");
+
           return (
             <g
-              key={o.id}
-              className="animate-in fade-in zoom-in-75 fill-mode-both motion-reduce:animate-none group cursor-pointer outline-none duration-500 ease-out"
+              key={single ? first.id : `cluster-${i}`}
+              className={`animate-in fade-in zoom-in-75 fill-mode-both motion-reduce:animate-none group outline-none duration-500 ease-out ${single ? "cursor-pointer" : ""}`}
               style={{
                 animationDelay: `${Math.min(i, 14) * 45}ms`,
                 transformBox: "fill-box",
                 transformOrigin: "center",
               }}
-              role="link"
-              tabIndex={0}
-              aria-label={`${o.title}: ${t("Impact")} ${impact.toFixed(1)}, ${t("Feasibility")} ${feas.toFixed(1)}`}
-              onClick={go}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  go();
-                }
-              }}
+              role={single ? "link" : "img"}
+              tabIndex={single ? 0 : undefined}
+              aria-label={single ? tip : `${count} ${t("opportunities")}: ${tip}`}
+              onClick={single ? go : undefined}
+              onKeyDown={
+                single
+                  ? (e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        go();
+                      }
+                    }
+                  : undefined
+              }
             >
-              <title>
-                {o.title}: {t("Impact")} {impact.toFixed(1)}, {t("Feasibility")}{" "}
-                {feas.toFixed(1)}
-              </title>
+              <title>{tip}</title>
               <circle
-                cx={x(feas)}
-                cy={y(impact)}
+                cx={cx}
+                cy={cy}
                 r={r}
-                className={`${DOT_FILL[q]} stroke-background group-hover:stroke-foreground group-focus-visible:stroke-foreground transition-[stroke]`}
+                className={`${DOT_FILL[q]} stroke-background transition-[stroke] ${single ? "group-hover:stroke-foreground group-focus-visible:stroke-foreground" : ""}`}
                 strokeWidth={1.5}
               />
               <text
                 x={labelX}
-                y={y(impact) + 3}
+                y={cy + 3}
                 textAnchor={flipLeft ? "end" : "start"}
                 className="fill-foreground group-hover:font-medium text-[10px]"
               >
                 {label}
               </text>
+              {!single ? (
+                <>
+                  <circle
+                    cx={cx + r * 0.72}
+                    cy={cy - r * 0.72}
+                    r={7}
+                    className="fill-foreground stroke-background"
+                    strokeWidth={1.5}
+                  />
+                  <text
+                    x={cx + r * 0.72}
+                    y={cy - r * 0.72 + 3}
+                    textAnchor="middle"
+                    className="fill-background text-[9px] font-semibold"
+                  >
+                    {count}
+                  </text>
+                </>
+              ) : null}
             </g>
           );
         })}
