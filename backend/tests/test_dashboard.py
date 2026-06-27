@@ -40,6 +40,9 @@ def test_summary_reflects_score_and_recommendation(client: TestClient) -> None:
     assert row["recommendation_type"] == "PROCEED"
     assert row["completeness"] == 1.0
     assert row["status"] == "RECOMMENDED"
+    # Portfolio matrix axes are present once scored.
+    assert row["impact_score"] == 8.0
+    assert row["feasibility_score"] is not None
 
 
 def test_summary_newest_first(client: TestClient) -> None:
