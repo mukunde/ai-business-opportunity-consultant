@@ -193,4 +193,7 @@ export const fr: Record<string, string> = {
   "Score an opportunity to place it on the matrix.":
     "Scorez une opportunité pour la placer sur la matrice.",
   "Not yet scored": "Pas encore scorées",
+  "Zoom in": "Zoomer",
+  "Zoom out": "Dézoomer",
+  "Reset zoom": "Réinitialiser le zoom",
 };
