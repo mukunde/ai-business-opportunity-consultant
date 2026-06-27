@@ -6,11 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.dashboard import service as dashboard_service
 from app.db.session import get_db
 from app.models.opportunity import Opportunity
 from app.schemas.opportunity import (
     OpportunityCreate,
     OpportunityRead,
+    OpportunitySummaryRead,
     OpportunityUpdate,
 )
 
@@ -42,6 +44,17 @@ def list_opportunities(
     """List opportunities, newest first."""
     rows = crud.opportunity.list_opportunities(db, skip=skip, limit=limit)
     return [OpportunityRead.model_validate(row) for row in rows]
+
+
+# Declared before "/{opportunity_id}" so the literal path is not captured as an id.
+@router.get("/summary", response_model=list[OpportunitySummaryRead])
+def list_opportunity_summaries(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+) -> list[OpportunitySummaryRead]:
+    """List opportunities with their latest score and recommendation (dashboard)."""
+    return dashboard_service.opportunity_summaries(db, skip=skip, limit=limit)
 
 
 @router.get("/{opportunity_id}", response_model=OpportunityRead)

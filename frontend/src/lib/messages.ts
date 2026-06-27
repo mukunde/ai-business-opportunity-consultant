@@ -22,6 +22,16 @@ export const fr: Record<string, string> = {
   Status: "Statut",
   Created: "Créée le",
   "No opportunities yet": "Aucune opportunité pour l'instant",
+  "Search opportunities…": "Rechercher des opportunités…",
+  "All statuses": "Tous les statuts",
+  "All recommendations": "Toutes les recommandations",
+  "No recommendation": "Sans recommandation",
+  "Sort by": "Trier par",
+  Newest: "Plus récentes",
+  "Highest score": "Score décroissant",
+  "Lowest score": "Score croissant",
+  "No opportunities match these filters.":
+    "Aucune opportunité ne correspond à ces filtres.",
   "Create one above to start a context-driven interview, then score it and get a recommendation.":
     "Créez-en une ci-dessus pour lancer un entretien guidé par le contexte, puis scorez-la et obtenez une recommandation.",
   "Could not reach the API. Is the backend running on":

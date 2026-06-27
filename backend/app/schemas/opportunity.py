@@ -38,3 +38,18 @@ class OpportunityRead(BaseModel):
     owner_id: uuid.UUID | None
     created_at: datetime
     updated_at: datetime
+
+
+class OpportunitySummaryRead(BaseModel):
+    """An opportunity plus its latest score/recommendation, for the dashboard."""
+
+    id: uuid.UUID
+    title: str
+    business_area: str | None
+    status: OpportunityStatus
+    current_version: int
+    created_at: datetime
+    final_score: float | None = None
+    confidence: float | None = None
+    completeness: float | None = None
+    recommendation_type: str | None = None
