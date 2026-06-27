@@ -45,9 +45,9 @@ function truncate(s: string, n = 16) {
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;
 }
 
-const MIN_ZOOM = 1;
+const MIN_ZOOM = 0.5; // below 1 the matrix shrinks to fit small screens
 const MAX_ZOOM = 3;
-const ZOOM_STEP = 0.5;
+const ZOOM_STEP = 0.25;
 
 const controlBtn =
   "bg-card/90 text-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-40 grid size-8 place-items-center rounded-md border shadow-sm backdrop-blur transition-colors";
@@ -58,7 +58,7 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const [zoom, setZoom] = useState(1);
 
   const setZoomClamped = (z: number) =>
-    setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 10) / 10)));
+    setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 100) / 100)));
 
   // Opportunities at the same impact/feasibility coincide on the plot; collapse
   // them into one marker carrying a count badge instead of overlapping dots.
@@ -76,7 +76,7 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
         <div className="max-h-[75vh] overflow-auto rounded-lg">
           <svg
             viewBox={`0 0 ${W} ${H}`}
-            className="block h-auto"
+            className="mx-auto block h-auto"
             style={{ width: `${zoom * 100}%` }}
             role="img"
             aria-label={t("Impact vs feasibility matrix")}
