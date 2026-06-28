@@ -13,6 +13,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const nav = [
     { href: "/", label: t("Dashboard") },
+    { href: "/discovery", label: t("Discovery") },
     { href: "/portfolio", label: t("Portfolio") },
   ];
 
