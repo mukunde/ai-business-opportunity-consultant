@@ -296,6 +296,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Discovery
+         * @description Open a discovery session and ask the first question.
+         */
+        post: operations["start_discovery_discovery_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/{session_id}/continue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Continue Discovery
+         * @description Process one answer; on completion, candidate opportunities are detected.
+         */
+        post: operations["continue_discovery_discovery__session_id__continue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Discovery
+         * @description Return the current state of a discovery session.
+         */
+        get: operations["get_discovery_discovery__session_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/{session_id}/signal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ingest Signal
+         * @description Push a signal into the session without an interview (connector seam).
+         */
+        post: operations["ingest_signal_discovery__session_id__signal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/{session_id}/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Candidates
+         * @description List the candidate opportunities surfaced by this discovery session.
+         */
+        get: operations["list_candidates_discovery__session_id__opportunities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/discovery/{session_id}/opportunities/{candidate_id}/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Promote Candidate
+         * @description Promote a candidate into a real Opportunity (enters qualification).
+         */
+        post: operations["promote_candidate_discovery__session_id__opportunities__candidate_id__promote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -418,6 +538,75 @@ export interface components {
          * @enum {string}
          */
         ContradictionStatus: "OPEN" | "RESOLVED";
+        /** DiscoveredOpportunityRead */
+        DiscoveredOpportunityRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Target Pain Point */
+            target_pain_point: string;
+            /** Rationale */
+            rationale: string;
+            /** Promoted Opportunity Id */
+            promoted_opportunity_id: string | null;
+        };
+        /** DiscoveryAnswer */
+        DiscoveryAnswer: {
+            /** Answer */
+            answer: string;
+        };
+        /** DiscoverySessionRead */
+        DiscoverySessionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            status: components["schemas"]["DiscoveryStatus"];
+            /** Completeness */
+            completeness: number;
+            /** Next Question */
+            next_question: string | null;
+            /** Done */
+            done: boolean;
+            /** Context */
+            context: {
+                [key: string]: string;
+            };
+            /** Pain Points */
+            pain_points: string[];
+            /** Signals */
+            signals: {
+                [key: string]: string;
+            }[];
+            /** Turns */
+            turns: components["schemas"]["DiscoveryTurnRead"][];
+        };
+        /** DiscoveryStart */
+        DiscoveryStart: {
+            /** Title */
+            title: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * DiscoveryStatus
+         * @enum {string}
+         */
+        DiscoveryStatus: "ACTIVE" | "COMPLETED";
+        /** DiscoveryTurnRead */
+        DiscoveryTurnRead: {
+            /** Role */
+            role: string;
+            /** Message */
+            message: string;
+        };
         /** EvidenceRead */
         EvidenceRead: {
             /**
@@ -732,6 +921,16 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * SignalIngest
+         * @description A signal pushed into the session without an interview (ingestion seam).
+         */
+        SignalIngest: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
         };
         /** SnapshotFact */
         SnapshotFact: {
@@ -1459,6 +1658,203 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VersionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_discovery_discovery_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscoveryStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverySessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    continue_discovery_discovery__session_id__continue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscoveryAnswer"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverySessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_discovery_discovery__session_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverySessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingest_signal_discovery__session_id__signal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignalIngest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverySessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_candidates_discovery__session_id__opportunities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveredOpportunityRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    promote_candidate_discovery__session_id__opportunities__candidate_id__promote_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityRead"];
                 };
             };
             /** @description Validation Error */

@@ -85,6 +85,30 @@ class InferredGraph(BaseModel):
     contradictions: list[InferredContradiction] = []
 
 
+class DiscoveryExtraction(BaseModel):
+    """Structured extraction for the upstream Discovery interview (ADR 0004)."""
+
+    sector: str | None = None  # metier / secteur
+    objectives: str | None = None  # objectifs et KPI suivis
+    process_name: str | None = None  # le process principal etudie
+    process_steps: str | None = None  # etapes, outils, intervenants, declencheurs
+    pain_points: list[str] = []  # irritants reperes (accumulent comme assumptions)
+
+
+class DetectedOpportunity(BaseModel):
+    """One AI opportunity candidate surfaced from the discovered context."""
+
+    title: str
+    target_pain_point: str
+    rationale: str
+
+
+class OpportunityDetection(BaseModel):
+    """The detector's output over a completed Discovery session."""
+
+    opportunities: list[DetectedOpportunity] = []
+
+
 class LLMClient(Protocol):
     """What the interview nodes need from a language model."""
 
@@ -104,6 +128,24 @@ class LLMClient(Protocol):
 
     def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
         """Reason over the collected context: typed edges and contradictions."""
+        ...
+
+    def extract_discovery(
+        self, raw_input: str, latest_answer: str, known: dict[str, str]
+    ) -> DiscoveryExtraction:
+        """Pull business/process facts and pain points from a discovery answer."""
+        ...
+
+    def next_question_for(
+        self, label: str, reason: str, raw_input: str, context: dict[str, str]
+    ) -> str:
+        """Phrase the next discovery question for a given missing slot."""
+        ...
+
+    def detect_opportunities(
+        self, context: dict[str, str], pain_points: list[str]
+    ) -> OpportunityDetection:
+        """Surface candidate AI opportunities from the discovered context."""
         ...
 
 
@@ -186,6 +228,63 @@ class ClaudeClient:
             system=prompts.RELATIONSHIP_SYSTEM,
             messages=[{"role": "user", "content": user}],
             output_format=InferredGraph,
+        )
+        result = response.parsed_output
+        assert result is not None
+        return result
+
+    def extract_discovery(
+        self, raw_input: str, latest_answer: str, known: dict[str, str]
+    ) -> DiscoveryExtraction:
+        user = (
+            f"Business context so far:\n{raw_input}\n\n"
+            f"Already known:\n{known or 'nothing yet'}\n\n"
+            f"Latest answer from the user:\n{latest_answer}"
+        )
+        response = self._client.messages.parse(
+            model=self._model,
+            max_tokens=1024,
+            system=prompts.DISCOVERY_ANALYST_SYSTEM,
+            messages=[{"role": "user", "content": user}],
+            output_format=DiscoveryExtraction,
+        )
+        result = response.parsed_output
+        assert result is not None
+        return result
+
+    def next_question_for(
+        self, label: str, reason: str, raw_input: str, context: dict[str, str]
+    ) -> str:
+        user = (
+            f"Business under exploration:\n{raw_input}\n\n"
+            f"Discovered so far:\n{context}\n\n"
+            f"You still need to learn the {label} ({reason}). Ask for it."
+        )
+        response = self._client.messages.create(
+            model=self._model,
+            max_tokens=512,
+            thinking={"type": "adaptive"},
+            output_config={"effort": "low"},
+            system=prompts.DISCOVERY_CONSULTANT_SYSTEM,
+            messages=[{"role": "user", "content": user}],
+        )
+        return next((b.text for b in response.content if b.type == "text"), "").strip()
+
+    def detect_opportunities(
+        self, context: dict[str, str], pain_points: list[str]
+    ) -> OpportunityDetection:
+        user = (
+            f"Discovered business context:\n{context}\n\n"
+            f"Pain points observed:\n{pain_points or 'none stated'}\n\n"
+            "List the candidate AI opportunities."
+        )
+        response = self._client.messages.parse(
+            model=self._model,
+            max_tokens=1536,
+            thinking={"type": "adaptive"},
+            system=prompts.OPPORTUNITY_DETECTOR_SYSTEM,
+            messages=[{"role": "user", "content": user}],
+            output_format=OpportunityDetection,
         )
         result = response.parsed_output
         assert result is not None
