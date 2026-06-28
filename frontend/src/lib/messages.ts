@@ -230,4 +230,7 @@ export const fr: Record<string, string> = {
   "Process steps": "Étapes du processus",
   "Promote a candidate to turn it into an opportunity you can qualify and score; once scored it appears in the Portfolio.":
     "Promouvez une candidate pour en faire une opportunité à qualifier et scorer ; une fois scorée, elle apparaît dans le Portfolio.",
+  "Your discoveries": "Vos découvertes",
+  Active: "En cours",
+  Completed: "Terminée",
 };

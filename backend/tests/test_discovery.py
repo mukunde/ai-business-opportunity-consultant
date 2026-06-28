@@ -85,5 +85,14 @@ def test_promote_candidate_creates_opportunity(client: TestClient) -> None:
     assert client.get(f"/opportunities/{opp['id']}").status_code == 200
 
 
+def test_list_sessions(client: TestClient) -> None:
+    assert client.get("/discovery").json() == []
+    sid = _start(client)
+    sessions = client.get("/discovery").json()
+    assert len(sessions) == 1
+    assert sessions[0]["id"] == sid
+    assert sessions[0]["status"] == "ACTIVE"
+
+
 def test_discovery_unknown_session_404(client: TestClient) -> None:
     assert client.get("/discovery/00000000-0000-0000-0000-000000000000").status_code == 404

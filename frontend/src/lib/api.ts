@@ -25,6 +25,8 @@ export type Version = components["schemas"]["VersionRead"];
 export type AssessmentSnapshot = components["schemas"]["AssessmentSnapshot"];
 
 export type DiscoverySession = components["schemas"]["DiscoverySessionRead"];
+export type DiscoverySessionSummary =
+  components["schemas"]["DiscoverySessionSummary"];
 export type DiscoveredOpportunity =
   components["schemas"]["DiscoveredOpportunityRead"];
 
@@ -121,6 +123,8 @@ export const api = {
   // so it is an <a href> rather than an apiFetch JSON call.
   reportPdfUrl: (id: string) => `${API_BASE}/opportunities/${id}/report.pdf`,
 
+  listDiscoverySessions: () =>
+    apiFetch<DiscoverySessionSummary[]>("/discovery"),
   startDiscovery: (title: string, message: string) =>
     apiFetch<DiscoverySession>("/discovery", {
       method: "POST",

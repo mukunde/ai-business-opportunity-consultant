@@ -13,12 +13,25 @@ from app.schemas.discovery import (
     DiscoveredOpportunityRead,
     DiscoveryAnswer,
     DiscoverySessionRead,
+    DiscoverySessionSummary,
     DiscoveryStart,
     SignalIngest,
 )
 from app.schemas.opportunity import OpportunityRead
 
 router = APIRouter(prefix="/discovery", tags=["discovery"])
+
+
+def _summary(session: DiscoverySession) -> DiscoverySessionSummary:
+    s = session.working_state
+    return DiscoverySessionSummary(
+        id=session.id,
+        title=session.title,
+        status=session.status,
+        completeness=s.get("completeness", 0.0),
+        done=s.get("done", False),
+        created_at=session.created_at,
+    )
 
 
 def _read(session: DiscoverySession) -> DiscoverySessionRead:
@@ -42,6 +55,12 @@ def _get_or_404(db: Session, session_id: uuid.UUID) -> DiscoverySession:
     if session is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Discovery session not found")
     return session
+
+
+@router.get("", response_model=list[DiscoverySessionSummary])
+def list_sessions(db: Session = Depends(get_db)) -> list[DiscoverySessionSummary]:
+    """List discovery sessions, newest first."""
+    return [_summary(s) for s in service.list_sessions(db)]
 
 
 @router.post("", response_model=DiscoverySessionRead, status_code=status.HTTP_201_CREATED)
