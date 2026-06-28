@@ -24,6 +24,10 @@ export type ReportBundle = components["schemas"]["ReportBundle"];
 export type Version = components["schemas"]["VersionRead"];
 export type AssessmentSnapshot = components["schemas"]["AssessmentSnapshot"];
 
+export type DiscoverySession = components["schemas"]["DiscoverySessionRead"];
+export type DiscoveredOpportunity =
+  components["schemas"]["DiscoveredOpportunityRead"];
+
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -116,6 +120,31 @@ export const api = {
   // Direct link to the server-rendered PDF (a plain GET the browser downloads),
   // so it is an <a href> rather than an apiFetch JSON call.
   reportPdfUrl: (id: string) => `${API_BASE}/opportunities/${id}/report.pdf`,
+
+  startDiscovery: (title: string, message: string) =>
+    apiFetch<DiscoverySession>("/discovery", {
+      method: "POST",
+      body: JSON.stringify({ title, message }),
+    }),
+  continueDiscovery: (id: string, answer: string) =>
+    apiFetch<DiscoverySession>(`/discovery/${id}/continue`, {
+      method: "POST",
+      body: JSON.stringify({ answer }),
+    }),
+  getDiscovery: (id: string) =>
+    apiFetch<DiscoverySession>(`/discovery/${id}`),
+  ingestSignal: (id: string, label: string, value: string) =>
+    apiFetch<DiscoverySession>(`/discovery/${id}/signal`, {
+      method: "POST",
+      body: JSON.stringify({ label, value }),
+    }),
+  listDiscoveryCandidates: (id: string) =>
+    apiFetch<DiscoveredOpportunity[]>(`/discovery/${id}/opportunities`),
+  promoteCandidate: (id: string, candidateId: string) =>
+    apiFetch<Opportunity>(
+      `/discovery/${id}/opportunities/${candidateId}/promote`,
+      { method: "POST" },
+    ),
 
   listVersions: (id: string) =>
     apiFetch<Version[]>(`/opportunities/${id}/versions`),

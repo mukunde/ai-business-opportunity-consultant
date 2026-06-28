@@ -196,4 +196,32 @@ export const fr: Record<string, string> = {
   "Zoom in": "Zoomer",
   "Zoom out": "Dézoomer",
   "Reset zoom": "Réinitialiser le zoom",
+
+  // Discovery
+  Discovery: "Découverte",
+  "New discovery": "Nouvelle découverte",
+  "Explore a business or a process to surface AI opportunities, before qualifying them.":
+    "Explorez un métier ou un processus pour faire émerger des opportunités IA, avant de les qualifier.",
+  "What are we exploring?": "Qu'explore-t-on ?",
+  "Describe the business or process in your own words.":
+    "Décrivez le métier ou le processus avec vos mots.",
+  "We sell custom kitchens; the sales cycle is long…":
+    "Nous vendons des cuisines sur mesure ; le cycle de vente est long…",
+  "Start discovery": "Démarrer la découverte",
+  "Discovery session not found.": "Session de découverte introuvable.",
+  "Discovery complete. Candidate opportunities are ready.":
+    "Découverte terminée. Les opportunités candidates sont prêtes.",
+  "Pain points": "Irritants",
+  Signals: "Signaux",
+  "Nothing yet.": "Rien pour l'instant.",
+  "None yet.": "Aucun pour l'instant.",
+  "Signal label": "Libellé du signal",
+  "Signal value": "Valeur du signal",
+  "Add signal": "Ajouter un signal",
+  "Detected opportunities": "Opportunités détectées",
+  Targets: "Cible",
+  "View opportunity": "Voir l'opportunité",
+  "Promote to qualification": "Promouvoir vers la qualification",
+  "No opportunity candidates were detected.":
+    "Aucune opportunité candidate détectée.",
 };
