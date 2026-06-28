@@ -233,4 +233,5 @@ export const fr: Record<string, string> = {
   "Your discoveries": "Vos découvertes",
   Active: "En cours",
   Completed: "Terminée",
+  "View detected opportunities": "Voir les opportunités détectées",
 };

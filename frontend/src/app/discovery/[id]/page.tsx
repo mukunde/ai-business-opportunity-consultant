@@ -30,6 +30,8 @@ export default function DiscoverySessionPage() {
   const [label, setLabel] = useState("");
   const [value, setValue] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const opportunitiesRef = useRef<HTMLDivElement>(null);
+  const wasDone = useRef(false);
 
   const session = useQuery({
     queryKey: ["discovery", id],
@@ -76,6 +78,18 @@ export default function DiscoverySessionPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turnCount, answer.isPending]);
+
+  // When the interview just completed, glide down to the detected opportunities.
+  useEffect(() => {
+    if (done && !wasDone.current) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      opportunitiesRef.current?.scrollIntoView({
+        behavior: reduce ? "auto" : "smooth",
+        block: "start",
+      });
+    }
+    wasDone.current = done;
+  }, [done]);
 
   if (session.isLoading) {
     return <Skeleton className="h-[60vh] w-full rounded-xl" />;
@@ -148,9 +162,23 @@ export default function DiscoverySessionPage() {
 
           <div className="mt-4 border-t pt-4">
             {done ? (
-              <p className="text-muted-foreground text-center text-sm">
-                {t("Discovery complete. Candidate opportunities are ready.")}
-              </p>
+              <div className="space-y-2 text-center">
+                <p className="text-muted-foreground text-sm">
+                  {t("Discovery complete. Candidate opportunities are ready.")}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    opportunitiesRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    })
+                  }
+                >
+                  {t("View detected opportunities")}
+                </Button>
+              </div>
             ) : (
               <form
                 className="flex items-end gap-2"
@@ -271,7 +299,10 @@ export default function DiscoverySessionPage() {
 
       {/* Detected opportunities */}
       {done ? (
-        <section className="space-y-3">
+        <section
+          ref={opportunitiesRef}
+          className="animate-in fade-in slide-in-from-bottom-2 scroll-mt-20 space-y-3 duration-500 motion-reduce:animate-none"
+        >
           <h2 className="text-base font-semibold tracking-tight">
             {t("Detected opportunities")}
           </h2>
