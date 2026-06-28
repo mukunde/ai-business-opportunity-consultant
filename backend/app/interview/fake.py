@@ -95,3 +95,8 @@ class FakeLLM:
                 for pp in pain_points
             ]
         )
+
+    def generate_markdown(self, system: str, user: str) -> str:
+        # Deterministic stub: a minimal document echoing the context's first line.
+        first = next((ln for ln in user.splitlines() if ln.strip()), "Document")
+        return f"# Generated document\n\n{first}\n\n(Generated offline by FakeLLM.)"

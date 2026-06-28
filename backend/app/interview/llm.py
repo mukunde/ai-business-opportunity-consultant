@@ -148,6 +148,10 @@ class LLMClient(Protocol):
         """Surface candidate AI opportunities from the discovered context."""
         ...
 
+    def generate_markdown(self, system: str, user: str) -> str:
+        """Generate a free-form Markdown document from a system + user prompt."""
+        ...
+
 
 class ClaudeClient:
     """Anthropic Claude implementation of LLMClient."""
@@ -289,6 +293,16 @@ class ClaudeClient:
         result = response.parsed_output
         assert result is not None
         return result
+
+    def generate_markdown(self, system: str, user: str) -> str:
+        response = self._client.messages.create(
+            model=self._model,
+            max_tokens=4096,
+            thinking={"type": "adaptive"},
+            system=system,
+            messages=[{"role": "user", "content": user}],
+        )
+        return next((b.text for b in response.content if b.type == "text"), "").strip()
 
 
 def get_llm() -> LLMClient:

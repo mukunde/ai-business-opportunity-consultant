@@ -134,3 +134,37 @@ def test_report_pdf_download_after_generation(client: TestClient) -> None:
     assert "attachment" in resp.headers["content-disposition"]
     assert resp.headers["content-disposition"].endswith('-report.pdf"')
     assert resp.content.startswith(b"%PDF")
+
+
+def test_deliverable_requires_recommendation(client: TestClient) -> None:
+    opp_id = _opp(client)
+    assert client.post(f"/opportunities/{opp_id}/deliverables/PRD").status_code == 409
+
+
+def test_deliverable_unknown_opportunity_404(client: TestClient) -> None:
+    resp = client.post(
+        "/opportunities/00000000-0000-0000-0000-000000000000/deliverables/PRD"
+    )
+    assert resp.status_code == 404
+
+
+def test_deliverable_invalid_kind_422(client: TestClient) -> None:
+    opp_id = _opp(client)
+    assert client.post(f"/opportunities/{opp_id}/deliverables/NOPE").status_code == 422
+
+
+def test_generate_list_and_get_deliverables(client: TestClient) -> None:
+    opp_id = _opp(client)
+    _run_to_recommendation(client, opp_id)
+
+    resp = client.post(f"/opportunities/{opp_id}/deliverables/PRD")
+    assert resp.status_code == 201
+    body = resp.json()
+    assert body["kind"] == "PRD"
+    assert body["markdown_content"]
+
+    listing = client.get(f"/opportunities/{opp_id}/deliverables").json()
+    assert [d["kind"] for d in listing] == ["PRD"]
+
+    assert client.get(f"/opportunities/{opp_id}/deliverables/PRD").status_code == 200
+    assert client.get(f"/opportunities/{opp_id}/deliverables/TRD").status_code == 404

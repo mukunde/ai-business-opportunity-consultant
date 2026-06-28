@@ -8,10 +8,12 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.db.session import get_db
+from app.interview.llm import LLMClient, get_llm
+from app.models.reporting import DeliverableKind
 from app.recommendation import service as recommendation_service
 from app.reporting import service
 from app.reporting.pdf import render_report_pdf
-from app.schemas.reporting import ReportBundle, ReportDocumentRead
+from app.schemas.reporting import DeliverableRead, ReportBundle, ReportDocumentRead
 
 router = APIRouter(prefix="/opportunities", tags=["reporting"])
 
@@ -77,3 +79,49 @@ def get_report_pdf(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> 
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.post(
+    "/{opportunity_id}/deliverables/{kind}",
+    response_model=DeliverableRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def generate_deliverable(
+    opportunity_id: uuid.UUID,
+    kind: DeliverableKind,
+    db: Session = Depends(get_db),
+    llm: LLMClient = Depends(get_llm),
+) -> DeliverableRead:
+    """Generate one handoff deliverable for a validated opportunity (ADR 0005)."""
+    opportunity = crud.opportunity.get_opportunity(db, opportunity_id)
+    if opportunity is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Opportunity not found")
+    if recommendation_service.latest_recommendation(db, opportunity_id) is None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "No recommendation yet; recommend before generating deliverables",
+        )
+    deliverable = service.generate_deliverable(db, opportunity, kind, llm)
+    return DeliverableRead.model_validate(deliverable)
+
+
+@router.get("/{opportunity_id}/deliverables", response_model=list[DeliverableRead])
+def list_deliverables(
+    opportunity_id: uuid.UUID, db: Session = Depends(get_db)
+) -> list[DeliverableRead]:
+    """List all generated deliverables for an opportunity."""
+    return [
+        DeliverableRead.model_validate(d)
+        for d in service.list_deliverables(db, opportunity_id)
+    ]
+
+
+@router.get("/{opportunity_id}/deliverables/{kind}", response_model=DeliverableRead)
+def get_deliverable(
+    opportunity_id: uuid.UUID, kind: DeliverableKind, db: Session = Depends(get_db)
+) -> DeliverableRead:
+    """Return the latest deliverable of a given kind."""
+    deliverable = service.latest_deliverable(db, opportunity_id, kind)
+    if deliverable is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Deliverable not generated yet")
+    return DeliverableRead.model_validate(deliverable)
