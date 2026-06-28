@@ -252,6 +252,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/opportunities/{opportunity_id}/deliverables/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Deliverable
+         * @description Return the latest deliverable of a given kind.
+         */
+        get: operations["get_deliverable_opportunities__opportunity_id__deliverables__kind__get"];
+        put?: never;
+        /**
+         * Generate Deliverable
+         * @description Generate one handoff deliverable for a validated opportunity (ADR 0005).
+         */
+        post: operations["generate_deliverable_opportunities__opportunity_id__deliverables__kind__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/opportunities/{opportunity_id}/deliverables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Deliverables
+         * @description List all generated deliverables for an opportunity.
+         */
+        get: operations["list_deliverables_opportunities__opportunity_id__deliverables_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/opportunities/{opportunity_id}/versions": {
         parameters: {
             query?: never;
@@ -542,6 +586,28 @@ export interface components {
          * @enum {string}
          */
         ContradictionStatus: "OPEN" | "RESOLVED";
+        /**
+         * DeliverableKind
+         * @description Handoff-dossier document types generated on demand (ADR 0005).
+         * @enum {string}
+         */
+        DeliverableKind: "CONDENSED_BRIEF" | "IMPLEMENTATION_ROADMAP" | "PRD" | "TRD" | "UIUX" | "BACKEND_SCHEMA" | "APPFLOW";
+        /** DeliverableRead */
+        DeliverableRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["DeliverableKind"];
+            /** Markdown Content */
+            markdown_content: string;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+        };
         /** DiscoveredOpportunityRead */
         DiscoveredOpportunityRead: {
             /**
@@ -1587,6 +1653,101 @@ export interface operations {
                 };
                 content: {
                     "application/pdf": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_deliverable_opportunities__opportunity_id__deliverables__kind__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                kind: components["schemas"]["DeliverableKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliverableRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_deliverable_opportunities__opportunity_id__deliverables__kind__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                kind: components["schemas"]["DeliverableKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliverableRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_deliverables_opportunities__opportunity_id__deliverables_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliverableRead"][];
                 };
             };
             /** @description Validation Error */

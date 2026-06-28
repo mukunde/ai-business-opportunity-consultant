@@ -5,6 +5,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.models.reporting import DeliverableKind
+
 
 class ReportDocumentRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -19,3 +21,12 @@ class ReportBundle(BaseModel):
 
     executive_summary: ReportDocumentRead
     detailed_assessment: ReportDocumentRead
+
+
+class DeliverableRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    kind: DeliverableKind
+    markdown_content: str
+    generated_at: datetime

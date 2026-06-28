@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.interview.llm import LLMClient
 from app.models.context import (
     ContextCompleteness,
     ContextNode,
@@ -14,8 +15,14 @@ from app.models.context import (
 from app.models.interview import InterviewSession
 from app.models.opportunity import Opportunity, OpportunityStatus
 from app.models.recommendation import Recommendation
-from app.models.reporting import DetailedAssessment, ExecutiveSummary
+from app.models.reporting import (
+    Deliverable,
+    DeliverableKind,
+    DetailedAssessment,
+    ExecutiveSummary,
+)
 from app.models.scoring import ScoreSnapshot
+from app.reporting.deliverables import build_context, system_prompt
 from app.reporting.generator import (
     ReportData,
     build_detailed_assessment,
@@ -113,3 +120,40 @@ def latest_reports(
     summary = _latest(db, ExecutiveSummary, opportunity_id, ExecutiveSummary.generated_at)
     assessment = _latest(db, DetailedAssessment, opportunity_id, DetailedAssessment.generated_at)
     return summary, assessment
+
+
+def generate_deliverable(
+    db: Session, opportunity: Opportunity, kind: DeliverableKind, llm: LLMClient
+) -> Deliverable:
+    """Generate and persist one handoff deliverable (ADR 0005)."""
+    data = gather_report_data(db, opportunity)
+    markdown = llm.generate_markdown(system_prompt(kind), build_context(data))
+    deliverable = Deliverable(
+        opportunity_id=opportunity.id, kind=kind, markdown_content=markdown
+    )
+    db.add(deliverable)
+    db.commit()
+    db.refresh(deliverable)
+    return deliverable
+
+
+def list_deliverables(db: Session, opportunity_id: uuid.UUID) -> list[Deliverable]:
+    """Return all deliverables for an opportunity, oldest first."""
+    stmt = (
+        select(Deliverable)
+        .where(Deliverable.opportunity_id == opportunity_id)
+        .order_by(Deliverable.generated_at)
+    )
+    return list(db.execute(stmt).scalars())
+
+
+def latest_deliverable(
+    db: Session, opportunity_id: uuid.UUID, kind: DeliverableKind
+) -> Deliverable | None:
+    """Return the most recent deliverable of a given kind."""
+    stmt = (
+        select(Deliverable)
+        .where(Deliverable.opportunity_id == opportunity_id, Deliverable.kind == kind)
+        .order_by(Deliverable.generated_at.desc())
+    )
+    return db.execute(stmt).scalars().first()
