@@ -23,6 +23,8 @@ export type RecommendationType = Recommendation["type"];
 export type ReportBundle = components["schemas"]["ReportBundle"];
 export type Version = components["schemas"]["VersionRead"];
 export type AssessmentSnapshot = components["schemas"]["AssessmentSnapshot"];
+export type Deliverable = components["schemas"]["DeliverableRead"];
+export type DeliverableKind = Deliverable["kind"];
 
 export type DiscoverySession = components["schemas"]["DiscoverySessionRead"];
 export type DiscoverySessionSummary =
@@ -122,6 +124,13 @@ export const api = {
   // Direct link to the server-rendered PDF (a plain GET the browser downloads),
   // so it is an <a href> rather than an apiFetch JSON call.
   reportPdfUrl: (id: string) => `${API_BASE}/opportunities/${id}/report.pdf`,
+
+  listDeliverables: (id: string) =>
+    apiFetch<Deliverable[]>(`/opportunities/${id}/deliverables`),
+  generateDeliverable: (id: string, kind: DeliverableKind) =>
+    apiFetch<Deliverable>(`/opportunities/${id}/deliverables/${kind}`, {
+      method: "POST",
+    }),
 
   listDiscoverySessions: () =>
     apiFetch<DiscoverySessionSummary[]>("/discovery"),

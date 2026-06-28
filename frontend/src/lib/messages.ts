@@ -167,6 +167,16 @@ export const fr: Record<string, string> = {
   "Detailed assessment": "Évaluation détaillée",
   "Request failed": "Échec de la requête",
 
+  // Deliverables (handoff dossier)
+  "Handoff dossier": "Dossier de reprise",
+  "Generate ready-to-use documents from this assessment.":
+    "Générez des documents directement exploitables à partir de cette évaluation.",
+  "Deliverable generated": "Document généré",
+  "Condensed brief": "Note de synthèse",
+  "Implementation roadmap": "Roadmap d'implémentation",
+  "UI/UX doc": "Doc UI/UX",
+  "Backend schema": "Schéma backend",
+
   // Versioning
   "Version history": "Historique des versions",
   "Save version": "Enregistrer la version",
