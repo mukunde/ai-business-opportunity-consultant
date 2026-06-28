@@ -315,16 +315,14 @@ export default function DiscoverySessionPage() {
             <ul className="space-y-3">
               {candidates.data.map((c: DiscoveredOpportunity) => (
                 <li key={c.id} className="bg-card rounded-xl border p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-medium">{c.title}</p>
-                      <p className="text-muted-foreground mt-0.5 text-sm">
-                        {t("Targets")}: {c.target_pain_point}
-                      </p>
-                      <p className="text-muted-foreground mt-1 text-sm">
-                        {c.rationale}
-                      </p>
-                    </div>
+                  <p className="font-medium">{c.title}</p>
+                  <p className="text-muted-foreground mt-0.5 text-sm">
+                    {t("Targets")}: {c.target_pain_point}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {c.rationale}
+                  </p>
+                  <div className="mt-3">
                     {c.promoted_opportunity_id ? (
                       <Link
                         href={`/opportunities/${c.promoted_opportunity_id}`}
