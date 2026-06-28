@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     context,
+    discovery,
     interview,
     opportunities,
     recommendation,
@@ -20,5 +21,6 @@ api_router.include_router(scoring.router)
 api_router.include_router(recommendation.router)
 api_router.include_router(reporting.router)
 api_router.include_router(versions.router)
+api_router.include_router(discovery.router)
 
 __all__ = ["api_router"]

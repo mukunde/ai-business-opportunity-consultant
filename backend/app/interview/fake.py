@@ -8,12 +8,18 @@ interview reaches full completeness after exactly len(SLOT_KEYS) answers.
 
 from app.interview.llm import (
     ContextElement,
+    DetectedOpportunity,
+    DiscoveryExtraction,
     ExtractedContext,
     InferredGraph,
     InferredRelationship,
+    OpportunityDetection,
     StructuredOpportunity,
 )
 from app.interview.state import SLOT_KEYS, SLOT_LABELS, OpportunityState
+
+# Discovery interview slots, in pursuit order (mirrors DiscoveryExtraction fields).
+_DISCOVERY_SLOTS = ["sector", "objectives", "process_name", "process_steps"]
 
 
 class FakeLLM:
@@ -55,5 +61,37 @@ class FakeLLM:
             relationships=[
                 InferredRelationship(source_key=e.key, target_key=hub, relation_type="SUPPORTS")
                 for e in elements[1:]
+            ]
+        )
+
+    def extract_discovery(
+        self, raw_input: str, latest_answer: str, known: dict[str, str]
+    ) -> DiscoveryExtraction:
+        target = next((k for k in _DISCOVERY_SLOTS if not known.get(k)), None)
+        fields: dict[str, object] = {}
+        if target is not None:
+            fields[target] = latest_answer
+        # The last slot (process steps) is where the stub surfaces a pain point.
+        if target == "process_steps":
+            fields["pain_points"] = ["Recopie manuelle d'informations entre outils"]
+        return DiscoveryExtraction(**fields)
+
+    def next_question_for(
+        self, label: str, reason: str, raw_input: str, context: dict[str, str]
+    ) -> str:
+        return f"Quelle est la {label} ?"
+
+    def detect_opportunities(
+        self, context: dict[str, str], pain_points: list[str]
+    ) -> OpportunityDetection:
+        # One candidate per discovered pain point; empty if none surfaced.
+        return OpportunityDetection(
+            opportunities=[
+                DetectedOpportunity(
+                    title=f"Automatiser : {pp[:48]}",
+                    target_pain_point=pp,
+                    rationale="Tache repetitive et documentaire, candidate a une solution IA.",
+                )
+                for pp in pain_points
             ]
         )
