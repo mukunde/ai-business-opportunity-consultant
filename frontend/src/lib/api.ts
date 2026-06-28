@@ -25,6 +25,8 @@ export type Version = components["schemas"]["VersionRead"];
 export type AssessmentSnapshot = components["schemas"]["AssessmentSnapshot"];
 export type Deliverable = components["schemas"]["DeliverableRead"];
 export type DeliverableKind = Deliverable["kind"];
+export type Review = components["schemas"]["ReviewRead"];
+export type ReviewDecision = Review["decision"];
 
 export type DiscoverySession = components["schemas"]["DiscoverySessionRead"];
 export type DiscoverySessionSummary =
@@ -130,6 +132,13 @@ export const api = {
   generateDeliverable: (id: string, kind: DeliverableKind) =>
     apiFetch<Deliverable>(`/opportunities/${id}/deliverables/${kind}`, {
       method: "POST",
+    }),
+
+  getReview: (id: string) => apiFetch<Review>(`/opportunities/${id}/review`),
+  createReview: (id: string, decision: ReviewDecision, note?: string) =>
+    apiFetch<Review>(`/opportunities/${id}/review`, {
+      method: "POST",
+      body: JSON.stringify({ decision, note: note ?? null }),
     }),
 
   listDiscoverySessions: () =>

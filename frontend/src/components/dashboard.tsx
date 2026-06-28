@@ -34,6 +34,8 @@ const STATUSES: OpportunityStatus[] = [
   "SCORING",
   "RECOMMENDED",
   "REVIEW",
+  "APPROVED",
+  "REJECTED",
 ];
 
 const STATUS_LABEL: Record<OpportunityStatus, string> = {
@@ -43,6 +45,8 @@ const STATUS_LABEL: Record<OpportunityStatus, string> = {
   SCORING: "Scoring",
   RECOMMENDED: "Recommended",
   REVIEW: "Review",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
 };
 
 const REC_TYPES = [

@@ -14,6 +14,8 @@ const DOT: Record<OpportunityStatus, string> = {
   SCORING: "bg-amber-500",
   RECOMMENDED: "bg-emerald-500",
   REVIEW: "bg-violet-500",
+  APPROVED: "bg-emerald-600",
+  REJECTED: "bg-red-500",
 };
 
 const LABEL: Record<OpportunityStatus, string> = {
@@ -23,6 +25,8 @@ const LABEL: Record<OpportunityStatus, string> = {
   SCORING: "Scoring",
   RECOMMENDED: "Recommended",
   REVIEW: "Review",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
 };
 
 export function StatusBadge({ status }: { status: OpportunityStatus }) {
