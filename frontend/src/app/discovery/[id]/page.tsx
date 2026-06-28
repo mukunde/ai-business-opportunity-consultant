@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,6 +13,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useT } from "@/lib/i18n";
 import { ApiError, api, type DiscoveredOpportunity } from "@/lib/api";
 
+// The context dict is keyed by backend slot slugs; show readable labels instead.
+const CONTEXT_LABEL: Record<string, string> = {
+  sector: "Sector",
+  objectives: "Objectives & KPIs",
+  process_name: "Process",
+  process_steps: "Process steps",
+};
+
 export default function DiscoverySessionPage() {
   const t = useT();
   const router = useRouter();
@@ -21,6 +29,7 @@ export default function DiscoverySessionPage() {
   const [draft, setDraft] = useState("");
   const [label, setLabel] = useState("");
   const [value, setValue] = useState("");
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const session = useQuery({
     queryKey: ["discovery", id],
@@ -61,6 +70,12 @@ export default function DiscoverySessionPage() {
     onSuccess: (opp) => router.push(`/opportunities/${opp.id}`),
     onError,
   });
+
+  // Keep the conversation pinned to the latest message as it grows.
+  const turnCount = session.data?.turns.length ?? 0;
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [turnCount, answer.isPending]);
 
   if (session.isLoading) {
     return <Skeleton className="h-[60vh] w-full rounded-xl" />;
@@ -128,6 +143,7 @@ export default function DiscoverySessionPage() {
                 {t("Consultant is thinking…")}
               </p>
             ) : null}
+            <div ref={bottomRef} />
           </div>
 
           <div className="mt-4 border-t pt-4">
@@ -177,7 +193,9 @@ export default function DiscoverySessionPage() {
             <dl className="mt-3 space-y-2">
               {Object.entries(s.context).map(([k, v]) => (
                 <div key={k} className="text-sm">
-                  <dt className="text-muted-foreground text-xs">{k}</dt>
+                  <dt className="text-muted-foreground text-xs">
+                    {t(CONTEXT_LABEL[k] ?? k)}
+                  </dt>
                   <dd className="font-medium">{v}</dd>
                 </div>
               ))}
@@ -257,6 +275,11 @@ export default function DiscoverySessionPage() {
           <h2 className="text-base font-semibold tracking-tight">
             {t("Detected opportunities")}
           </h2>
+          <p className="text-muted-foreground max-w-prose text-sm">
+            {t(
+              "Promote a candidate to turn it into an opportunity you can qualify and score; once scored it appears in the Portfolio.",
+            )}
+          </p>
           {candidates.data && candidates.data.length > 0 ? (
             <ul className="space-y-3">
               {candidates.data.map((c: DiscoveredOpportunity) => (
