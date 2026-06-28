@@ -26,6 +26,8 @@ class OpportunityStatus(enum.StrEnum):
     SCORING = "SCORING"
     RECOMMENDED = "RECOMMENDED"
     REVIEW = "REVIEW"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
 
 
 def _utcnow() -> datetime:

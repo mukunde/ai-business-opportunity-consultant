@@ -9,6 +9,7 @@ from app.api.routes import (
     opportunities,
     recommendation,
     reporting,
+    review,
     scoring,
     versions,
 )
@@ -22,5 +23,6 @@ api_router.include_router(recommendation.router)
 api_router.include_router(reporting.router)
 api_router.include_router(versions.router)
 api_router.include_router(discovery.router)
+api_router.include_router(review.router)
 
 __all__ = ["api_router"]

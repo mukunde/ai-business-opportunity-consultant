@@ -464,6 +464,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/opportunities/{opportunity_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Review
+         * @description Return the latest review for an opportunity.
+         */
+        get: operations["get_review_opportunities__opportunity_id__review_get"];
+        put?: never;
+        /**
+         * Create Review
+         * @description Record a human approve/reject verdict (status -> APPROVED/REJECTED).
+         */
+        post: operations["create_review_opportunities__opportunity_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -838,7 +862,7 @@ export interface components {
          * @description Lifecycle state of an opportunity (Backend Schema v1, entity 1).
          * @enum {string}
          */
-        OpportunityStatus: "DRAFT" | "INTERVIEW_ACTIVE" | "STRUCTURED" | "SCORING" | "RECOMMENDED" | "REVIEW";
+        OpportunityStatus: "DRAFT" | "INTERVIEW_ACTIVE" | "STRUCTURED" | "SCORING" | "RECOMMENDED" | "REVIEW" | "APPROVED" | "REJECTED";
         /**
          * OpportunitySummaryRead
          * @description An opportunity plus its latest score/recommendation, for the dashboard.
@@ -967,6 +991,33 @@ export interface components {
              * Format: date-time
              */
             generated_at: string;
+        };
+        /** ReviewCreate */
+        ReviewCreate: {
+            decision: components["schemas"]["ReviewDecision"];
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * ReviewDecision
+         * @enum {string}
+         */
+        ReviewDecision: "APPROVE" | "REJECT";
+        /** ReviewRead */
+        ReviewRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            decision: components["schemas"]["ReviewDecision"];
+            /** Note */
+            note: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * ScoreInput
@@ -2063,6 +2114,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OpportunityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review_opportunities__opportunity_id__review_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_review_opportunities__opportunity_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewRead"];
                 };
             };
             /** @description Validation Error */
