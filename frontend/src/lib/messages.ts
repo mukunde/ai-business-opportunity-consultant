@@ -224,4 +224,10 @@ export const fr: Record<string, string> = {
   "Promote to qualification": "Promouvoir vers la qualification",
   "No opportunity candidates were detected.":
     "Aucune opportunité candidate détectée.",
+  Sector: "Secteur",
+  "Objectives & KPIs": "Objectifs et KPI",
+  Process: "Processus",
+  "Process steps": "Étapes du processus",
+  "Promote a candidate to turn it into an opportunity you can qualify and score; once scored it appears in the Portfolio.":
+    "Promouvez une candidate pour en faire une opportunité à qualifier et scorer ; une fois scorée, elle apparaît dans le Portfolio.",
 };
