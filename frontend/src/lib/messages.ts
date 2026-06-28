@@ -46,6 +46,8 @@ export const fr: Record<string, string> = {
   Scoring: "Scoring",
   Recommended: "Recommandée",
   Review: "Revue",
+  Approved: "Approuvée",
+  Rejected: "Rejetée",
 
   // Detail page
   "No business area": "Aucun domaine métier",
@@ -166,6 +168,14 @@ export const fr: Record<string, string> = {
   "Executive summary": "Résumé exécutif",
   "Detailed assessment": "Évaluation détaillée",
   "Request failed": "Échec de la requête",
+
+  // Review (human verdict)
+  "Human review": "Revue humaine",
+  "Record your verdict to close this opportunity.":
+    "Enregistrez votre verdict pour clôturer cette opportunité.",
+  "Add a note (optional)": "Ajouter une note (optionnel)",
+  Approve: "Approuver",
+  Reject: "Rejeter",
 
   // Deliverables (handoff dossier)
   "Handoff dossier": "Dossier de reprise",
