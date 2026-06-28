@@ -148,6 +148,12 @@ def get_session(db: Session, session_id: uuid.UUID) -> DiscoverySession | None:
     return db.get(DiscoverySession, session_id)
 
 
+def list_sessions(db: Session) -> list[DiscoverySession]:
+    """Return all discovery sessions, newest first."""
+    stmt = select(DiscoverySession).order_by(DiscoverySession.created_at.desc())
+    return list(db.execute(stmt).scalars())
+
+
 def list_candidates(db: Session, session_id: uuid.UUID) -> list[DiscoveredOpportunity]:
     stmt = (
         select(DiscoveredOpportunity)

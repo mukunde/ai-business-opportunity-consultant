@@ -1,6 +1,7 @@
 """Pydantic schemas for the Discovery API (ADR 0004)."""
 
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -39,6 +40,17 @@ class DiscoverySessionRead(BaseModel):
     pain_points: list[str]
     signals: list[dict[str, str]]
     turns: list[DiscoveryTurnRead]
+
+
+class DiscoverySessionSummary(BaseModel):
+    """A discovery session as listed on the discovery landing page."""
+
+    id: uuid.UUID
+    title: str
+    status: DiscoveryStatus
+    completeness: float
+    done: bool
+    created_at: datetime
 
 
 class DiscoveredOpportunityRead(BaseModel):

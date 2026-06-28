@@ -1,6 +1,7 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,6 +18,11 @@ export default function DiscoveryStartPage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+
+  const sessions = useQuery({
+    queryKey: ["discovery-sessions"],
+    queryFn: api.listDiscoverySessions,
+  });
 
   const start = useMutation({
     mutationFn: () => api.startDiscovery(title, message),
@@ -75,6 +81,32 @@ export default function DiscoveryStartPage() {
           {start.isPending ? t("Starting…") : t("Start discovery")}
         </Button>
       </form>
+
+      {sessions.data && sessions.data.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-sm font-medium">{t("Your discoveries")}</h2>
+          <ul className="bg-card divide-y overflow-hidden rounded-xl border">
+            {sessions.data.map((s) => (
+              <li key={s.id}>
+                <Link
+                  href={`/discovery/${s.id}`}
+                  className="hover:bg-muted/40 group flex items-center justify-between gap-3 px-4 py-3 transition-colors"
+                >
+                  <span className="group-hover:text-primary font-medium transition-colors">
+                    {s.title}
+                  </span>
+                  <span className="text-muted-foreground flex items-center gap-3 text-xs">
+                    <span>{s.done ? t("Completed") : t("Active")}</span>
+                    <span className="font-mono tabular-nums">
+                      {Math.round(s.completeness * 100)}%
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

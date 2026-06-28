@@ -303,7 +303,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Sessions
+         * @description List discovery sessions, newest first.
+         */
+        get: operations["list_sessions_discovery_get"];
         put?: never;
         /**
          * Start Discovery
@@ -587,6 +591,29 @@ export interface components {
             }[];
             /** Turns */
             turns: components["schemas"]["DiscoveryTurnRead"][];
+        };
+        /**
+         * DiscoverySessionSummary
+         * @description A discovery session as listed on the discovery landing page.
+         */
+        DiscoverySessionSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            status: components["schemas"]["DiscoveryStatus"];
+            /** Completeness */
+            completeness: number;
+            /** Done */
+            done: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** DiscoveryStart */
         DiscoveryStart: {
@@ -1667,6 +1694,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sessions_discovery_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoverySessionSummary"][];
                 };
             };
         };
