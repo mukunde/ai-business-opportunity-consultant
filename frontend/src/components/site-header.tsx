@@ -11,9 +11,10 @@ import { cn } from "@/lib/utils";
 export function SiteHeader() {
   const t = useT();
   const pathname = usePathname();
+  // Natural process order: discover -> qualify (dashboard) -> prioritise (portfolio).
   const nav = [
-    { href: "/", label: t("Dashboard") },
     { href: "/discovery", label: t("Discovery") },
+    { href: "/", label: t("Dashboard") },
     { href: "/portfolio", label: t("Portfolio") },
   ];
 
