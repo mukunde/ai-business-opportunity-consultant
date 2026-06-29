@@ -144,6 +144,25 @@ def ingest_signal(
     return session
 
 
+def detect_from_signals(
+    db: Session, session: DiscoverySession, llm: LLMClient
+) -> DiscoverySession:
+    """Run detection on a signal-fed session (no interview) and close it.
+
+    The connector path: signals were ingested into pain points; this surfaces the
+    candidate opportunities and marks the session complete, without an interview.
+    """
+    _detect_and_persist(db, session, llm)
+    state = dict(session.working_state)
+    state["done"] = True
+    session.working_state = state
+    session.status = DiscoveryStatus.COMPLETED
+    session.completed_at = datetime.now(UTC)
+    db.commit()
+    db.refresh(session)
+    return session
+
+
 def get_session(db: Session, session_id: uuid.UUID) -> DiscoverySession | None:
     return db.get(DiscoverySession, session_id)
 

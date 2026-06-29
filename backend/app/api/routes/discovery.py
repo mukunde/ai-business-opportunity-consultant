@@ -104,6 +104,19 @@ def ingest_signal(
     return _read(service.ingest_signal(db, session, payload.label, payload.value))
 
 
+@router.post("/{session_id}/detect", response_model=DiscoverySessionRead)
+def detect(
+    session_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    llm: LLMClient = Depends(get_llm),
+) -> DiscoverySessionRead:
+    """Detect candidate opportunities from ingested signals and close the session."""
+    session = _get_or_404(db, session_id)
+    if session.status == DiscoveryStatus.COMPLETED:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Discovery already completed")
+    return _read(service.detect_from_signals(db, session, llm))
+
+
 @router.get("/{session_id}/opportunities", response_model=list[DiscoveredOpportunityRead])
 def list_candidates(
     session_id: uuid.UUID, db: Session = Depends(get_db)
