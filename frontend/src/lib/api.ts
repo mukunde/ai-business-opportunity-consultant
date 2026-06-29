@@ -48,10 +48,17 @@ export class ApiError extends Error {
 }
 
 const TIMEOUT_MS = 15_000;
+// LLM-backed calls (interview turns, discovery, deliverable generation) routinely
+// take 30-60s with the live model + extended thinking, so they get a longer leash.
+const LLM_TIMEOUT_MS = 180_000;
 
-async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+async function apiFetch<T>(
+  path: string,
+  init?: RequestInit,
+  timeoutMs: number = TIMEOUT_MS,
+): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
     res = await fetch(`${API_BASE}${path}`, {
@@ -93,15 +100,17 @@ export const api = {
     }),
 
   startInterview: (id: string, message: string) =>
-    apiFetch<InterviewTurn>(`/opportunities/${id}/interview`, {
-      method: "POST",
-      body: JSON.stringify({ message }),
-    }),
+    apiFetch<InterviewTurn>(
+      `/opportunities/${id}/interview`,
+      { method: "POST", body: JSON.stringify({ message }) },
+      LLM_TIMEOUT_MS,
+    ),
   continueInterview: (id: string, answer: string) =>
-    apiFetch<InterviewTurn>(`/opportunities/${id}/continue`, {
-      method: "POST",
-      body: JSON.stringify({ answer }),
-    }),
+    apiFetch<InterviewTurn>(
+      `/opportunities/${id}/continue`,
+      { method: "POST", body: JSON.stringify({ answer }) },
+      LLM_TIMEOUT_MS,
+    ),
   getInterview: (id: string) =>
     apiFetch<InterviewSession>(`/opportunities/${id}/interview`),
   getContext: (id: string) =>
@@ -130,9 +139,11 @@ export const api = {
   listDeliverables: (id: string) =>
     apiFetch<Deliverable[]>(`/opportunities/${id}/deliverables`),
   generateDeliverable: (id: string, kind: DeliverableKind) =>
-    apiFetch<Deliverable>(`/opportunities/${id}/deliverables/${kind}`, {
-      method: "POST",
-    }),
+    apiFetch<Deliverable>(
+      `/opportunities/${id}/deliverables/${kind}`,
+      { method: "POST" },
+      LLM_TIMEOUT_MS,
+    ),
 
   getReview: (id: string) => apiFetch<Review>(`/opportunities/${id}/review`),
   createReview: (id: string, decision: ReviewDecision, note?: string) =>
@@ -144,15 +155,17 @@ export const api = {
   listDiscoverySessions: () =>
     apiFetch<DiscoverySessionSummary[]>("/discovery"),
   startDiscovery: (title: string, message: string) =>
-    apiFetch<DiscoverySession>("/discovery", {
-      method: "POST",
-      body: JSON.stringify({ title, message }),
-    }),
+    apiFetch<DiscoverySession>(
+      "/discovery",
+      { method: "POST", body: JSON.stringify({ title, message }) },
+      LLM_TIMEOUT_MS,
+    ),
   continueDiscovery: (id: string, answer: string) =>
-    apiFetch<DiscoverySession>(`/discovery/${id}/continue`, {
-      method: "POST",
-      body: JSON.stringify({ answer }),
-    }),
+    apiFetch<DiscoverySession>(
+      `/discovery/${id}/continue`,
+      { method: "POST", body: JSON.stringify({ answer }) },
+      LLM_TIMEOUT_MS,
+    ),
   getDiscovery: (id: string) =>
     apiFetch<DiscoverySession>(`/discovery/${id}`),
   ingestSignal: (id: string, label: string, value: string) =>
