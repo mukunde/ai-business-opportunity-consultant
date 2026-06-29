@@ -16,7 +16,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useT } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
-const DECISION_STATUSES = ["STRUCTURED", "SCORING", "RECOMMENDED", "REVIEW"];
+const DECISION_STATUSES = [
+  "STRUCTURED",
+  "SCORING",
+  "RECOMMENDED",
+  "REVIEW",
+  "APPROVED",
+  "REJECTED",
+];
 
 export default function OpportunityDetailPage() {
   const t = useT();
