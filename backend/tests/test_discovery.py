@@ -94,5 +94,28 @@ def test_list_sessions(client: TestClient) -> None:
     assert sessions[0]["status"] == "ACTIVE"
 
 
+def test_connector_flow_ingest_then_detect(client: TestClient) -> None:
+    """Signals fed without an interview, then detection surfaces candidates."""
+    sid = _start(client)
+    client.post(
+        f"/discovery/{sid}/signal",
+        json={"label": "Volume mails SAV", "value": "3000/semaine non traites"},
+    )
+    client.post(
+        f"/discovery/{sid}/signal",
+        json={"label": "Recopie manuelle", "value": "devis ressaisis dans l'ERP"},
+    )
+
+    body = client.post(f"/discovery/{sid}/detect").json()
+    assert body["status"] == "COMPLETED"
+    assert body["done"] is True
+
+    candidates = client.get(f"/discovery/{sid}/opportunities").json()
+    assert len(candidates) >= 2  # one per ingested signal (FakeLLM)
+
+    # Detecting again on a completed session is rejected.
+    assert client.post(f"/discovery/{sid}/detect").status_code == 409
+
+
 def test_discovery_unknown_session_404(client: TestClient) -> None:
     assert client.get("/discovery/00000000-0000-0000-0000-000000000000").status_code == 404
