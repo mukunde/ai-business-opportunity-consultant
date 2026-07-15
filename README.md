@@ -180,10 +180,10 @@ GET  /discovery/{id}/opportunities   read the candidates
 - [ADR 0001](docs/ADR/0001-context-graph-storage.md) context graph storage
 - [ADR 0002](docs/ADR/0002-llm-semantic-enrichment.md) LLM semantic enrichment
 - [ADR 0003](docs/ADR/0003-opportunity-versioning-snapshot.md) versioning by snapshot
-- [ADR 0004](docs/ADR/0004-data-readiness-assessed-not-presence.md) data readiness assessed, not presence
 - [ADR 0004](docs/ADR/0004-discovery-phase-upstream.md) discovery phase upstream
 - [ADR 0005](docs/ADR/0005-on-demand-deliverables.md) on-demand deliverables
 - [ADR 0006](docs/ADR/0006-human-review-decision.md) human review decision
+- [ADR 0007](docs/ADR/0007-data-readiness-assessed-not-presence.md) data readiness assessed, not presence
 
 ## Documents
 
