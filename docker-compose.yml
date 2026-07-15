@@ -5,6 +5,10 @@ services:
   db:
     image: postgres:16-alpine
     container_name: aiboc-db
+    # Come back up with Docker itself. Without this the container stays down
+    # after a Docker or machine restart, and the API only fails later, when a
+    # request first touches the database.
+    restart: unless-stopped
     environment:
       POSTGRES_USER: aiboc
       POSTGRES_PASSWORD: aiboc
