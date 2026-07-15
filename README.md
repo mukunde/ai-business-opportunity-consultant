@@ -1,13 +1,37 @@
 # AI Business Opportunity Consultant
 
-A stateful reasoning system that turns a vague business need into a decision-ready,
-transferable AI opportunity: adaptive interview, explicit context engineering,
-scoring, recommendation, human review, and a generated handoff dossier.
+Imagine an AI consultant that interviews your teams, understands your business
+context, evaluates automation opportunities, and produces a structured,
+implementation-ready recommendation.
+
+**AI Business Opportunity Consultant** helps organizations discover, qualify,
+prioritize, and validate AI opportunities before investing engineering effort.
+It is a stateful reasoning system: adaptive interview, explicit context
+engineering, operator-guided scoring, recommendation, human review, and a
+generated handoff dossier.
 
 The guiding idea: an AI opportunity is not worth building because a model can do
 it. It is worth building when the context is complete enough to decide, and a
 human has decided. The system makes that context explicit, and keeps the human in
 the loop at every gate.
+
+## Product demo
+
+🎥 **[End-to-end video walkthrough (Loom)](https://www.loom.com/share/f655345c29024669ac4d07ba077a6989)**:
+from an inbound customer-mail flow triaged by an n8n workflow, to detected
+opportunities, qualification, scoring, human review, portfolio and the generated
+handoff dossier. The UI is in French; the API and codebase are in English.
+
+## Why this exists
+
+- Organizations identify many AI ideas but struggle to prioritize them.
+- Projects fail because the business context is incomplete when building starts.
+- Teams start building before the value, the data and the owner are validated.
+- Business and technical stakeholders lack a shared evaluation framework.
+
+Most of the cost of a failed AI initiative is spent before anyone questions the
+premise. This system moves that questioning to the front, cheaply and
+systematically.
 
 ## What it does
 
@@ -33,6 +57,81 @@ Alongside the pipeline: a **portfolio** view that places opportunities in a
 priority quadrant, and **versioning** that snapshots an opportunity at each
 significant transition.
 
+## Example: from business signal to AI opportunity
+
+The scenario from the demo video, end to end:
+
+```text
+Business signals (from the mail-triage workflow):
+  repeated quote requests, quote follow-ups, complaints with order references
+        |
+Discovery:
+  candidate opportunity detected: "Automated quote generation for kitchen sales"
+        |
+Promotion + interview:
+  the consultant collects the four required context slots:
+  business volume, handling time, data availability, process owner
+        |
+Context graph:
+  facts (each backed by evidence), assumptions, remaining unknowns,
+  typed relationships and contradictions across them
+        |
+Scoring (human, guided):
+  the operator scores impact, ease and strategic fit on explicit criteria;
+  the engine computes ROI, feasibility, risk and a final priority
+        |
+Recommendation:
+  proposed verdict with rationale, e.g. "Quick Win: high impact, ready data"
+        |
+Human review:
+  approved (or rejected), recorded with the reviewer's rationale
+        |
+Deliverables (on demand):
+  condensed brief, implementation roadmap, PRD, TRD, UI/UX outline,
+  backend schema, appflow: an implementation-ready dossier
+```
+
+## One workflow, two repositories
+
+Discovery does not need a human conversation to start. This repository is the
+downstream half of a complete chain; the upstream half lives in
+[`ai-mail-triage-poc`](https://github.com/mukunde/ai-mail-triage-poc):
+
+```text
+ai-mail-triage-poc                          this repository
+------------------                          ---------------
+inbound customer mails                      discovery session
+  -> n8n + Claude triage                      -> candidate opportunities
+     (classify, extract, route)               -> qualification interview
+  -> extracted customer needs                 -> scoring, recommendation
+     pushed as business signals  ---------->  -> human review
+                                              -> portfolio + handoff dossier
+```
+
+The idea behind the link: inbound mails express real, recurring frictions.
+Instead of only routing them, the chain **turns them into qualified candidates
+for automation**. Triage handles the flow; qualification exploits the deposit.
+
+The bridge is plain HTTP, so any upstream system can feed signals the same way:
+
+```text
+POST /discovery                      create a session
+POST /discovery/{id}/signal          push one business signal
+POST /discovery/{id}/detect          run detection over the signals
+GET  /discovery/{id}/opportunities   read the candidates
+```
+
+## What makes this different
+
+| Generic AI assistants | AI Business Opportunity Consultant |
+| --- | --- |
+| Answer questions | Build decision context |
+| Stateless conversations | Persistent opportunity lifecycle |
+| The LLM decides everything | Deterministic rules + LLM reasoning, split on purpose |
+| Generate text | Support validated business decisions |
+| No traceability | Evidence records, versioning, audit trail |
+| Human feedback after generation | Human approval as a workflow gate |
+
 ## How it works
 
 **The interview is a turn engine, not a chatbot.** One LangGraph invocation
@@ -53,14 +152,41 @@ stale node can survive. Once the context is complete, a single LLM pass infers
 typed edges (SUPPORTS / DEPENDS_ON / REQUIRES) and contradictions across the
 nodes. The model never sees database identifiers; nodes are handed opaque keys.
 
-**Deterministic where it must be, model-driven where it pays.** Gap analysis,
-routing, scoring arithmetic and completeness are plain code and stay auditable.
-Extraction, questioning, structuring, semantic enrichment and document generation
-call the model. The split is deliberate and documented in the ADRs.
-
 **A graph does not need a graph database.** Nodes and a typed edge table in
 Postgres are enough at this volume, avoid an extra technology, and stay readable
 by anyone who knows SQL. See [ADR 0001](docs/ADR/0001-context-graph-storage.md).
+
+## Key design principles
+
+- Deterministic logic where correctness matters; LLM reasoning only where
+  ambiguity exists.
+- Human approval remains the final decision point.
+- Context is stored as a reusable business asset, with evidence.
+- Every opportunity transition can be audited (versioning by snapshot).
+- Database state is the source of truth; the engine is rebuilt from it each turn.
+- Deliverables are generated on demand, never silently.
+
+## Technical architecture
+
+```text
+                Next.js frontend (French UI)
+                          |
+                   FastAPI backend
+                          |
+    ------------------------------------------------
+    |           |            |           |          |
+Discovery   Interview     Scoring     Review    Reporting
+    |           |            |           |          |
+    ------------------------------------------------
+                          |
+                    Context layer
+        (projection + LLM semantic enrichment)
+                          |
+                  PostgreSQL (Alembic)
+                          |
+                 LLM provider layer
+             Claude API  /  deterministic fake
+```
 
 ## Repository structure
 
@@ -118,6 +244,15 @@ migrations, then opens the API and the frontend in their own windows.
 
 Flags: `-NoFrontend` (database and API only), `-SkipMigrations`.
 
+### Try the demo
+
+1. Create an opportunity (or feed signals through the discovery API).
+2. Answer the adaptive interview questions; watch completeness climb.
+3. Review the extracted context: facts, assumptions, unknowns, contradictions.
+4. Score the opportunity on the guided criteria.
+5. Read the recommendation, then approve or reject it as the human reviewer.
+6. Generate the handoff dossier and browse the version history.
+
 ### Manual start
 
 ```powershell
@@ -132,8 +267,9 @@ cd frontend
 npm run dev
 ```
 
-The API binds `0.0.0.0` so a containerised client (for example an n8n workflow)
-can reach it through `host.docker.internal:8000`. A loopback-only bind cannot.
+The API binds `0.0.0.0` so a containerised client (for example the n8n triage
+workflow) can reach it through `host.docker.internal:8000`. A loopback-only bind
+cannot.
 
 ### Running without an API key
 
@@ -160,20 +296,34 @@ compose database, which is useful when a native Postgres already holds 5432.
 
 Never commit `.env`. It is gitignored.
 
-## Ingestion beyond the interview
+## Target users
 
-Discovery can be driven by an interview, or fed programmatically: post business
-signals to a session and trigger detection, and candidate opportunities emerge
-without a human conversation. This is what lets an upstream automation (for
-example an n8n workflow that triages inbound customer mail) turn everyday
-friction into qualified opportunity candidates.
+- Innovation teams and AI labs qualifying use-case ideas before prototyping.
+- Consulting firms running AI opportunity assessments.
+- Enterprise teams prioritizing automation initiatives across departments.
+- Product teams validating AI product ideas against real context.
 
-```text
-POST /discovery                      create a session
-POST /discovery/{id}/signal          push one business signal
-POST /discovery/{id}/detect          run detection over the signals
-GET  /discovery/{id}/opportunities   read the candidates
-```
+## Project status
+
+Implemented:
+
+- ✅ Discovery pipeline (interview-driven or signal-driven)
+- ✅ Adaptive qualification interview (LangGraph)
+- ✅ Context graph with evidence, semantic edges and contradictions
+- ✅ Operator-guided scoring and computed priority
+- ✅ Recommendation with rationale
+- ✅ Human review workflow (approve / reject)
+- ✅ Portfolio dashboard (priority quadrant)
+- ✅ Opportunity versioning by snapshot
+- ✅ On-demand deliverables (brief, roadmap, PRD, TRD, UI/UX, schema, appflow)
+- ✅ Upstream mail-triage ingestion (n8n workflow, separate repository)
+
+Next:
+
+- production authentication;
+- multi-tenant support;
+- systematic evaluation metrics for the LLM steps;
+- more upstream connectors (ticketing, CRM) feeding discovery.
 
 ## Architecture decisions
 
@@ -193,9 +343,3 @@ GET  /discovery/{id}/opportunities   read the candidates
 - [Appflow v1](docs/Appflow_v1.md)
 - [Backend Schema v1](docs/Backend_Schema_v1.md)
 - [Implementation Plan v1](docs/Implementation_Plan_v1.md)
-
-## Status
-
-The end-to-end flow is implemented and running locally: discovery, adaptive
-interview, context graph, scoring, recommendation, human review, portfolio,
-versioning, and on-demand deliverables, with a French UI over an English API.
