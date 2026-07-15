@@ -1,8 +1,12 @@
-# ADR 0004 - Data readiness is an assessed quality, not slot presence
+# ADR 0007 - Data readiness is an assessed quality, not slot presence
 
 - Status: Accepted
 - Date: 2026-06-27
 - Deciders: Gael Mukunde
+
+> Renumbered from 0004. Two ADRs were merged under that number; 0004 stayed with
+> the discovery phase, which the code references by number in several modules.
+> The Date above records when the decision was actually taken.
 
 ## Context
 
