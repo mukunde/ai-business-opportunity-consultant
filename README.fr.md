@@ -181,6 +181,11 @@ technologie, et restent lisibles par quiconque connaît SQL. Voir
 - Chaque transition d'une opportunité est auditable (versionnage par instantané).
 - L'état en base fait foi ; le moteur est reconstruit depuis la base à chaque tour.
 - Les livrables sont générés à la demande, jamais en silence.
+- Le modèle ne reçoit jamais d'identifiants de base de données. Les noeuds lui
+  sont exposés via des clés opaques propres à l'appel (`n0`, `n1`, ...) qu'il
+  renvoie telles quelles : aucun identifiant ne peut fuiter dans les prompts, les
+  logs ou la sortie du modèle, et une injection de prompt n'a aucune prise
+  interne à viser.
 
 ## Architecture technique
 
@@ -325,6 +330,12 @@ Les réglages du backend sont lus depuis l'environnement ou `backend/.env`
 | `CONTEXT_COMPLETENESS_THRESHOLD` | `1.0` | seuil à partir duquel l'entretien peut structurer |
 | `CORS_ORIGINS` | `http://localhost:3000` | origines navigateur autorisées |
 
+`LLM_MODEL` est volontairement figé sur un modèle de génération précédente. Les
+étapes de qualification relèvent de l'extraction structurée et de la génération
+courte, où le gain d'un modèle frontière ne justifie ni le coût ni la latence
+supplémentaires pour un POC. La couche fournisseur est agnostique au modèle :
+monter de version tient en une ligne.
+
 Une variable supplémentaire vit dans un `.env` **à la racine**, lue par docker
 compose et non par l'application : `POSTGRES_HOST_PORT` (défaut `5432`) fixe le
 port hôte de la base du compose, utile quand un Postgres natif occupe déjà 5432.
@@ -340,6 +351,10 @@ Ne jamais committer `.env`. Il est dans le `.gitignore`.
 - Équipes produit validant des idées de produits IA face au contexte réel.
 
 ## État du projet
+
+Un POC, complet de bout en bout mais non durci pour la production :
+l'authentification et le multi-tenant sont volontairement hors périmètre à ce
+stade.
 
 Implémenté :
 

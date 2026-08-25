@@ -72,6 +72,30 @@ Negative / trade-offs:
   served by this design. That is the Phase 4 knowledge-graph concern, deliberately
   deferred.
 
+## Related decision: the same author chose a graph database elsewhere
+
+In another project, [bioprocess-assistant](https://github.com/mukunde/bioprocess-assistant),
+[ADR-001](https://github.com/mukunde/bioprocess-assistant/blob/main/docs/ADR-001-knowledge-graph-grounding.md)
+grounds a troubleshooting agent on a **Neo4j** knowledge graph. That is the
+opposite call to this one, and the difference is not volume. It is what the graph
+*is*:
+
+| | bioprocess-assistant (Neo4j) | this project (PostgreSQL) |
+| --- | --- | --- |
+| The graph is | the product: durable domain knowledge, curated by experts | a projection: derived from interview state, rebuilt every turn |
+| Read pattern | multi-hop causal traversal (symptom to causes to actions) | read the whole scoped subgraph of one opportunity, no traversal |
+| Write pattern | incremental enrichment by domain experts, outside the code | idempotent wipe and rebuild, inside the interview transaction |
+| Neighbourhood | the graph is the database | the graph coexists with opportunities, scores, reviews, versions |
+| Auditability from | provenance carried on each node | evidence rows plus versioning, in the same transaction |
+
+The decisive argument here: the queries we actually run are never traversals, so
+a graph database would buy no query power. It would cost a second datastore and a
+two-phase consistency problem between the graph and the relational records the
+graph must stay transactionally consistent with. There, the causal traversal *is*
+the use case, and the knowledge must outlive every session.
+
+The same engineer, opposite conclusions, because the constraints differ.
+
 ## Notes
 
 Semantic relationship inference (which FACT SUPPORTS which approach) and

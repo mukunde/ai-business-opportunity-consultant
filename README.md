@@ -171,6 +171,10 @@ by anyone who knows SQL. See [ADR 0001](docs/ADR/0001-context-graph-storage.md).
 - Every opportunity transition can be audited (versioning by snapshot).
 - Database state is the source of truth; the engine is rebuilt from it each turn.
 - Deliverables are generated on demand, never silently.
+- The model is never handed database identifiers. Nodes are exposed to it through
+  opaque per-call keys (`n0`, `n1`, ...) that it echoes back, so identifiers cannot
+  leak into prompts, logs or model output, and a prompt injection has no internal
+  handle to aim at.
 
 ## Technical architecture
 
@@ -316,6 +320,11 @@ Backend settings are read from the environment or `backend/.env`
 | `CONTEXT_COMPLETENESS_THRESHOLD` | `1.0` | when the interview may structure |
 | `CORS_ORIGINS` | `http://localhost:3000` | allowed browser origins |
 
+`LLM_MODEL` is pinned to a previous-generation model on purpose. The qualification
+steps are structured extraction and short-form generation, where the frontier gain
+does not justify the added cost and latency for a proof of concept. The provider
+layer is model-agnostic, so moving up is a one-line change.
+
 One more variable lives in a **root** `.env`, read by docker compose rather than
 the application: `POSTGRES_HOST_PORT` (default `5432`) sets the host port for the
 compose database, which is useful when a native Postgres already holds 5432.
@@ -330,6 +339,9 @@ Never commit `.env`. It is gitignored.
 - Product teams validating AI product ideas against real context.
 
 ## Project status
+
+A proof of concept, complete end to end but not hardened for production:
+authentication and multi-tenancy are deliberately out of scope at this stage.
 
 Implemented:
 
