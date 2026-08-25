@@ -45,6 +45,16 @@ function truncate(s: string, n = 16) {
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;
 }
 
+const avg = (ns: number[]) => ns.reduce((sum, n) => sum + n, 0) / ns.length;
+
+// Two full-size markers already touch at this distance, so anything closer
+// overlaps on screen, labels included.
+const COLLAPSE_DISTANCE = 2 * radius(10);
+
+// Label metrics, used to reserve space and detect collisions before drawing.
+const LABEL_CHAR_W = 5.6; // average glyph advance at 10px
+const LABEL_LINE_H = 12;
+
 const MIN_ZOOM = 0.5; // below 1 the matrix shrinks to fit small screens
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 0.125;
@@ -61,15 +71,76 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
   const setZoomClamped = (z: number) =>
     setZoom(Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(z * 1000) / 1000)));
 
-  // Opportunities at the same impact/feasibility coincide on the plot; collapse
-  // them into one marker carrying a count badge instead of overlapping dots.
-  const groups = Object.values(
-    items.reduce<Record<string, OpportunitySummary[]>>((acc, o) => {
-      const key = `${(o.impact_score as number).toFixed(1)}|${(o.feasibility_score as number).toFixed(1)}`;
-      (acc[key] ??= []).push(o);
-      return acc;
-    }, {}),
-  );
+  // Opportunities that land close enough to overlap on the plot are collapsed
+  // into one marker carrying a count badge. Grouping on equal scores is not
+  // enough: a tenth of a point apart still draws two dots and two labels on the
+  // same spot, which renders as an unreadable smudge.
+  const groups = items.reduce<OpportunitySummary[][]>((acc, o) => {
+    const ox = x(o.feasibility_score as number);
+    const oy = y(o.impact_score as number);
+    const near = acc.find((group) =>
+      group.some(
+        (m) =>
+          Math.hypot(
+            ox - x(m.feasibility_score as number),
+            oy - y(m.impact_score as number),
+          ) <= COLLAPSE_DISTANCE,
+      ),
+    );
+    if (near) near.push(o);
+    else acc.push([o]);
+    return acc;
+  }, []);
+
+  // Label placement. A label sits beside its marker and flips to the left when
+  // it would leave the viewBox. Two markers can be far enough apart while their
+  // labels still land on the same spot, one flipped left and the other running
+  // right, so a label that would collide with one already placed drops a line.
+  const placements = groups.map((group) => {
+    const single = group.length === 1;
+    const impact = avg(group.map((o) => o.impact_score as number));
+    const feas = avg(group.map((o) => o.feasibility_score as number));
+    const cx = x(feas);
+    const cy = y(impact);
+    const r = Math.max(...group.map((o) => radius(o.final_score))) + (single ? 0 : 2);
+    const label = single
+      ? truncate(group[0].title)
+      : `${group.length} ${t("opportunities")}`;
+    const width = label.length * LABEL_CHAR_W;
+    const flipLeft = cx + r + 3 + width > W - 4;
+    const labelX = flipLeft ? cx - r - 3 : cx + r + 3;
+    return {
+      group,
+      single,
+      impact,
+      feas,
+      cx,
+      cy,
+      r,
+      label,
+      flipLeft,
+      labelX,
+      left: flipLeft ? labelX - width : labelX,
+      right: flipLeft ? labelX : labelX + width,
+      labelY: cy + 3,
+    };
+  });
+
+  for (let i = 0; i < placements.length; i++) {
+    const p = placements[i];
+    const others = placements.slice(0, i);
+    // Bounded: a handful of nudges is enough, and it must never spin.
+    for (let guard = 0; guard < 6; guard++) {
+      const collides = others.some(
+        (q) =>
+          Math.abs(q.labelY - p.labelY) < LABEL_LINE_H &&
+          p.left < q.right &&
+          q.left < p.right,
+      );
+      if (!collides) break;
+      p.labelY += LABEL_LINE_H;
+    }
+  }
 
   return (
     <div>
@@ -178,23 +249,12 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
         </text>
 
         {/* Markers: one per coincident group, staggered fade + zoom entrance. */}
-        {groups.map((group, i) => {
+        {placements.map((p, i) => {
+          const { group, single, impact, feas, cx, cy, r, label, flipLeft, labelX } = p;
           const first = group[0];
-          const impact = first.impact_score as number;
-          const feas = first.feasibility_score as number;
           const count = group.length;
-          const single = count === 1;
           const q = quadrantOf(impact, feas);
-          const cx = x(feas);
-          const cy = y(impact);
-          const r =
-            Math.max(...group.map((o) => radius(o.final_score))) + (single ? 0 : 2);
           const go = () => router.push(`/opportunities/${first.id}`);
-
-          // Flip the label left when a right-side label would overflow the viewBox.
-          const label = single ? truncate(first.title) : `${count} ${t("opportunities")}`;
-          const flipLeft = cx + r + 3 + label.length * 5.6 > W - 4;
-          const labelX = flipLeft ? cx - r - 3 : cx + r + 3;
           const tip = single
             ? `${first.title}: ${t("Impact")} ${impact.toFixed(1)}, ${t("Feasibility")} ${feas.toFixed(1)}`
             : group.map((o) => o.title).join(", ");
@@ -233,7 +293,7 @@ export function PortfolioMatrix({ items }: { items: OpportunitySummary[] }) {
               />
               <text
                 x={labelX}
-                y={cy + 3}
+                y={p.labelY}
                 textAnchor={flipLeft ? "end" : "start"}
                 className="fill-foreground group-hover:font-medium text-[10px]"
               >
