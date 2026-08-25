@@ -21,6 +21,34 @@ qu'un modèle en est capable. Elle le mérite quand le contexte est assez comple
 pour décider, et qu'un humain a décidé. Le système rend ce contexte explicite, et
 garde l'humain dans la boucle à chaque étape.
 
+## Aperçu du produit
+
+<table>
+<tr>
+<td width="46%" valign="top">
+
+<img src="docs/images/context-graph.png" alt="Le context graph d'une opportunité : faits, hypothèses, inconnues, connexions typées et tensions" />
+
+**Le context graph.** Ce qui est su, supposé et encore manquant, avec les liens
+que le modèle infère entre eux. La tension en bas est l'essentiel : l'utilisateur
+affirme d'abord que chaque demande est unique, puis que les trois quarts sont
+identiques. Une information de contexte ne conserve que la dernière valeur : le
+conflit ne survit que dans le transcript. Le système lui cite ses deux phrases.
+
+</td>
+<td width="54%" valign="top">
+
+<img src="docs/images/portfolio-quadrant.png" alt="Le quadrant de portefeuille plaçant les opportunités scorées par impact et faisabilité" />
+
+**Le portefeuille.** Les opportunités qualifiées, placées par impact et
+faisabilité, pour que l'arbitrage cesse d'être une affaire de voix la plus forte.
+La taille du marqueur porte le score de priorité, et les opportunités qui
+tombent au même endroit se regroupent en une pastille au lieu de s'empiler.
+
+</td>
+</tr>
+</table>
+
 ## Démo produit
 
 🎥 **[Démonstration vidéo de bout en bout (Loom)](https://www.loom.com/share/f655345c29024669ac4d07ba077a6989)** :
