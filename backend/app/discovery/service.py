@@ -144,9 +144,7 @@ def ingest_signal(
     return session
 
 
-def detect_from_signals(
-    db: Session, session: DiscoverySession, llm: LLMClient
-) -> DiscoverySession:
+def detect_from_signals(db: Session, session: DiscoverySession, llm: LLMClient) -> DiscoverySession:
     """Run detection on a signal-fed session (no interview) and close it.
 
     The connector path: signals were ingested into pain points; this surfaces the

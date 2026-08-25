@@ -128,9 +128,7 @@ def generate_deliverable(
     """Generate and persist one handoff deliverable (ADR 0005)."""
     data = gather_report_data(db, opportunity)
     markdown = llm.generate_markdown(system_prompt(kind), build_context(data))
-    deliverable = Deliverable(
-        opportunity_id=opportunity.id, kind=kind, markdown_content=markdown
-    )
+    deliverable = Deliverable(opportunity_id=opportunity.id, kind=kind, markdown_content=markdown)
     db.add(deliverable)
     db.commit()
     db.refresh(deliverable)

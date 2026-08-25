@@ -3,6 +3,9 @@
 [![English](https://img.shields.io/badge/English-6E6662?style=for-the-badge)](README.md)
 [![Français](https://img.shields.io/badge/Fran%C3%A7ais-8A1C34?style=for-the-badge)](README.fr.md)
 
+[![CI](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml/badge.svg)](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Imaginez un consultant IA qui interroge vos équipes, comprend votre contexte
 métier, évalue les opportunités d'automatisation, et produit une recommandation
 structurée, prête à être mise en oeuvre.
@@ -178,6 +181,11 @@ technologie, et restent lisibles par quiconque connaît SQL. Voir
 - Chaque transition d'une opportunité est auditable (versionnage par instantané).
 - L'état en base fait foi ; le moteur est reconstruit depuis la base à chaque tour.
 - Les livrables sont générés à la demande, jamais en silence.
+- Le modèle ne reçoit jamais d'identifiants de base de données. Les noeuds lui
+  sont exposés via des clés opaques propres à l'appel (`n0`, `n1`, ...) qu'il
+  renvoie telles quelles : aucun identifiant ne peut fuiter dans les prompts, les
+  logs ou la sortie du modèle, et une injection de prompt n'a aucune prise
+  interne à viser.
 
 ## Architecture technique
 
@@ -219,7 +227,8 @@ ai-business-opportunity-consultant/
 │   │   ├── versioning/      instantanés d'opportunité
 │   │   ├── dashboard/       agrégation du portefeuille
 │   │   └── models/          modèles SQLAlchemy
-│   └── alembic/versions/    migrations 0001 à 0011
+│   ├── alembic/versions/    migrations 0001 à 0011
+│   └── tests/               78 tests, exécutés sur le stub LLM déterministe
 ├── frontend/                Next.js App Router, TanStack Query, shadcn/ui
 ├── docs/
 │   ├── ADR/                 décisions d'architecture
@@ -231,6 +240,7 @@ ai-business-opportunity-consultant/
 │   └── Implementation_Plan_v1.md
 ├── docker-compose.yml       Postgres local
 ├── start-demo.ps1           lancement de la stack locale en une commande (Windows)
+├── start-demo.sh            lancement de la stack locale en une commande (macOS, Linux)
 └── README.md
 ```
 
@@ -238,23 +248,25 @@ ai-business-opportunity-consultant/
 
 Prérequis : Docker Desktop, Python avec [uv](https://docs.astral.sh/uv/), Node.js.
 
-```powershell
+```bash
 # 1. Configurer le backend
 cd backend
 cp .env.example .env      # puis renseigner ANTHROPIC_API_KEY, ou LLM_PROVIDER=fake
 
 # 2. Tout démarrer (Postgres, migrations, API, frontend)
 cd ..
-./start-demo.ps1
+./start-demo.sh           # macOS, Linux
+./start-demo.ps1          # Windows, PowerShell
 ```
 
 Le script démarre Postgres, attend son health check, applique les migrations en
-attente, puis ouvre l'API et le frontend chacun dans sa fenêtre.
+attente, puis lance l'API et le frontend.
 
 - Frontend : http://localhost:3000
 - Documentation de l'API : http://localhost:8000/docs
 
-Options : `-NoFrontend` (base et API seulement), `-SkipMigrations`.
+Options : `--no-frontend` / `-NoFrontend` (base et API seulement),
+`--skip-migrations` / `-SkipMigrations`.
 
 ### Essayer la démo
 
@@ -288,6 +300,22 @@ workflow de triage n8n) puisse la joindre via `host.docker.internal:8000`. Une
 Mettre `LLM_PROVIDER=fake` pour dérouler tout le flux hors ligne sur un stub
 déterministe : sans clé, sans coût, et avec des tests reproductibles.
 
+## Tests
+
+La suite s'exécute entièrement sur le stub LLM déterministe : ni clé API, ni
+coût.
+
+```bash
+cd backend
+uv run pytest -q          # 79 tests
+uv run ruff check .
+uv run ruff format --check .
+```
+
+Elle couvre le coeur déterministe sur lequel repose la conception : l'analyse
+d'écart de contexte, l'idempotence de la projection, le moteur de scoring, et
+tout le cycle de vie, de l'opportunité au livrable, à travers l'API.
+
 ## Configuration
 
 Les réglages du backend sont lus depuis l'environnement ou `backend/.env`
@@ -301,6 +329,12 @@ Les réglages du backend sont lus depuis l'environnement ou `backend/.env`
 | `LLM_MODEL` | `claude-opus-4-8` | identifiant du modèle |
 | `CONTEXT_COMPLETENESS_THRESHOLD` | `1.0` | seuil à partir duquel l'entretien peut structurer |
 | `CORS_ORIGINS` | `http://localhost:3000` | origines navigateur autorisées |
+
+`LLM_MODEL` est volontairement figé sur un modèle de génération précédente. Les
+étapes de qualification relèvent de l'extraction structurée et de la génération
+courte, où le gain d'un modèle frontière ne justifie ni le coût ni la latence
+supplémentaires pour un POC. La couche fournisseur est agnostique au modèle :
+monter de version tient en une ligne.
 
 Une variable supplémentaire vit dans un `.env` **à la racine**, lue par docker
 compose et non par l'application : `POSTGRES_HOST_PORT` (défaut `5432`) fixe le
@@ -317,6 +351,10 @@ Ne jamais committer `.env`. Il est dans le `.gitignore`.
 - Équipes produit validant des idées de produits IA face au contexte réel.
 
 ## État du projet
+
+Un POC, complet de bout en bout mais non durci pour la production :
+l'authentification et le multi-tenant sont volontairement hors périmètre à ce
+stade.
 
 Implémenté :
 
@@ -356,3 +394,7 @@ Implémenté :
 - [Appflow v1](docs/Appflow_v1.md)
 - [Backend Schema v1](docs/Backend_Schema_v1.md)
 - [Implementation Plan v1](docs/Implementation_Plan_v1.md)
+
+## Licence
+
+[MIT](LICENSE)

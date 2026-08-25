@@ -124,8 +124,7 @@ def list_candidates(
     """List the candidate opportunities surfaced by this discovery session."""
     _get_or_404(db, session_id)
     return [
-        DiscoveredOpportunityRead.model_validate(c)
-        for c in service.list_candidates(db, session_id)
+        DiscoveredOpportunityRead.model_validate(c) for c in service.list_candidates(db, session_id)
     ]
 
 

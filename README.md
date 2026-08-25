@@ -3,6 +3,9 @@
 [![English](https://img.shields.io/badge/English-8A1C34?style=for-the-badge)](README.md)
 [![Français](https://img.shields.io/badge/Fran%C3%A7ais-6E6662?style=for-the-badge)](README.fr.md)
 
+[![CI](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml/badge.svg)](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Imagine an AI consultant that interviews your teams, understands your business
 context, evaluates automation opportunities, and produces a structured,
 implementation-ready recommendation.
@@ -168,6 +171,10 @@ by anyone who knows SQL. See [ADR 0001](docs/ADR/0001-context-graph-storage.md).
 - Every opportunity transition can be audited (versioning by snapshot).
 - Database state is the source of truth; the engine is rebuilt from it each turn.
 - Deliverables are generated on demand, never silently.
+- The model is never handed database identifiers. Nodes are exposed to it through
+  opaque per-call keys (`n0`, `n1`, ...) that it echoes back, so identifiers cannot
+  leak into prompts, logs or model output, and a prompt injection has no internal
+  handle to aim at.
 
 ## Technical architecture
 
@@ -209,7 +216,8 @@ ai-business-opportunity-consultant/
 │   │   ├── versioning/      opportunity snapshots
 │   │   ├── dashboard/       portfolio aggregation
 │   │   └── models/          SQLAlchemy models
-│   └── alembic/versions/    migrations 0001 to 0011
+│   ├── alembic/versions/    migrations 0001 to 0011
+│   └── tests/               78 tests, run against the deterministic fake LLM
 ├── frontend/                Next.js App Router, TanStack Query, shadcn/ui
 ├── docs/
 │   ├── ADR/                 architecture decision records
@@ -221,6 +229,7 @@ ai-business-opportunity-consultant/
 │   └── Implementation_Plan_v1.md
 ├── docker-compose.yml       local Postgres
 ├── start-demo.ps1           one command local stack (Windows)
+├── start-demo.sh            one command local stack (macOS, Linux)
 └── README.md
 ```
 
@@ -229,23 +238,25 @@ ai-business-opportunity-consultant/
 Prerequisites: Docker Desktop, Python with [uv](https://docs.astral.sh/uv/),
 Node.js.
 
-```powershell
+```bash
 # 1. Configure the backend
 cd backend
 cp .env.example .env      # then set ANTHROPIC_API_KEY, or LLM_PROVIDER=fake
 
 # 2. Start everything (Postgres, migrations, API, frontend)
 cd ..
-./start-demo.ps1
+./start-demo.sh           # macOS, Linux
+./start-demo.ps1          # Windows, PowerShell
 ```
 
 The script starts Postgres, waits for its health check, applies pending
-migrations, then opens the API and the frontend in their own windows.
+migrations, then starts the API and the frontend.
 
 - Frontend: http://localhost:3000
 - API docs: http://localhost:8000/docs
 
-Flags: `-NoFrontend` (database and API only), `-SkipMigrations`.
+Flags: `--no-frontend` / `-NoFrontend` (database and API only),
+`--skip-migrations` / `-SkipMigrations`.
 
 ### Try the demo
 
@@ -279,6 +290,22 @@ cannot.
 Set `LLM_PROVIDER=fake` to exercise the entire flow offline against a
 deterministic stub: no key, no cost, and reproducible tests.
 
+## Tests
+
+The suite runs entirely against the deterministic fake LLM, so it needs no API
+key and costs nothing:
+
+```bash
+cd backend
+uv run pytest -q          # 79 tests
+uv run ruff check .
+uv run ruff format --check .
+```
+
+It covers the deterministic core the design rests on: the context gap analysis,
+the idempotence of the context projection, the scoring engine, and the full
+lifecycle from opportunity to deliverable through the API.
+
 ## Configuration
 
 Backend settings are read from the environment or `backend/.env`
@@ -292,6 +319,11 @@ Backend settings are read from the environment or `backend/.env`
 | `LLM_MODEL` | `claude-opus-4-8` | model id |
 | `CONTEXT_COMPLETENESS_THRESHOLD` | `1.0` | when the interview may structure |
 | `CORS_ORIGINS` | `http://localhost:3000` | allowed browser origins |
+
+`LLM_MODEL` is pinned to a previous-generation model on purpose. The qualification
+steps are structured extraction and short-form generation, where the frontier gain
+does not justify the added cost and latency for a proof of concept. The provider
+layer is model-agnostic, so moving up is a one-line change.
 
 One more variable lives in a **root** `.env`, read by docker compose rather than
 the application: `POSTGRES_HOST_PORT` (default `5432`) sets the host port for the
@@ -307,6 +339,9 @@ Never commit `.env`. It is gitignored.
 - Product teams validating AI product ideas against real context.
 
 ## Project status
+
+A proof of concept, complete end to end but not hardened for production:
+authentication and multi-tenancy are deliberately out of scope at this stage.
 
 Implemented:
 
@@ -346,3 +381,7 @@ Next:
 - [Appflow v1](docs/Appflow_v1.md)
 - [Backend Schema v1](docs/Backend_Schema_v1.md)
 - [Implementation Plan v1](docs/Implementation_Plan_v1.md)
+
+## License
+
+[MIT](LICENSE)

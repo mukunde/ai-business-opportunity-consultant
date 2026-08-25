@@ -1,13 +1,17 @@
 """API tests for the persistent context graph (Epic 3), driven by FakeLLM."""
 
+import uuid
+
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.context.enrichment import enrich_semantics
-from app.context.projection import compute_completeness
+from app.context.projection import compute_completeness, project_context
 from app.interview.llm import ContextElement, InferredContradiction, InferredGraph
-from app.models.context import ContextNode, ContextNodeType, Contradiction
+from app.interview.state import from_dict
+from app.models.context import ContextNode, ContextNodeType, Contradiction, Evidence
+from app.models.interview import InterviewSession
 from app.models.opportunity import Opportunity
 
 
@@ -28,6 +32,46 @@ def test_context_empty_before_interview(client: TestClient) -> None:
     assert body["nodes"] == []
     assert body["evidence"] == []
     assert body["completeness"] is None
+
+
+def test_projection_is_idempotent(client: TestClient, db_session: Session) -> None:
+    """Re-projecting the same interview state must not change the graph.
+
+    The projector wipes and rebuilds rather than diffing, so this guards the
+    property the design relies on: no duplicated node, no accumulated evidence,
+    no stale node surviving a second pass.
+    """
+    opp_id = _create_opportunity(client)
+    _start(client, opp_id)
+    for answer in ("3000 per week", "10 minutes each", "in Zendesk", "the support lead"):
+        client.post(f"/opportunities/{opp_id}/continue", json={"answer": answer})
+
+    opportunity_id = uuid.UUID(opp_id)
+
+    def snapshot() -> tuple[list[tuple[str, str]], int]:
+        nodes = db_session.execute(
+            select(ContextNode).where(ContextNode.opportunity_id == opportunity_id)
+        ).scalars()
+        evidence = db_session.execute(
+            select(Evidence).where(Evidence.opportunity_id == opportunity_id)
+        ).scalars()
+        return sorted((n.type.value, n.label) for n in nodes), len(list(evidence))
+
+    before = snapshot()
+    assert before[0], "the interview should have produced context nodes"
+
+    session = (
+        db_session.execute(
+            select(InterviewSession).where(InterviewSession.opportunity_id == opportunity_id)
+        )
+        .scalars()
+        .first()
+    )
+    assert session is not None
+    project_context(db_session, opportunity_id, from_dict(session.working_state))
+    db_session.commit()
+
+    assert snapshot() == before
 
 
 def test_context_unknown_opportunity_404(client: TestClient) -> None:

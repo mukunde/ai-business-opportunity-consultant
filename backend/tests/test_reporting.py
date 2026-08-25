@@ -142,9 +142,7 @@ def test_deliverable_requires_recommendation(client: TestClient) -> None:
 
 
 def test_deliverable_unknown_opportunity_404(client: TestClient) -> None:
-    resp = client.post(
-        "/opportunities/00000000-0000-0000-0000-000000000000/deliverables/PRD"
-    )
+    resp = client.post("/opportunities/00000000-0000-0000-0000-000000000000/deliverables/PRD")
     assert resp.status_code == 404
 
 
