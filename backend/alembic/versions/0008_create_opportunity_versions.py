@@ -42,7 +42,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_opportunity_versions_opportunity_id", table_name="opportunity_versions"
-    )
+    op.drop_index("ix_opportunity_versions_opportunity_id", table_name="opportunity_versions")
     op.drop_table("opportunity_versions")

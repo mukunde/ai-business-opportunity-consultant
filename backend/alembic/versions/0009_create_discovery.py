@@ -54,9 +54,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_index(
-        "ix_discovered_opportunities_session_id", table_name="discovered_opportunities"
-    )
+    op.drop_index("ix_discovered_opportunities_session_id", table_name="discovered_opportunities")
     op.drop_table("discovered_opportunities")
     op.drop_table("discovery_sessions")
     discovery_status.drop(op.get_bind(), checkfirst=True)

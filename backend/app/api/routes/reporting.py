@@ -111,8 +111,7 @@ def list_deliverables(
 ) -> list[DeliverableRead]:
     """List all generated deliverables for an opportunity."""
     return [
-        DeliverableRead.model_validate(d)
-        for d in service.list_deliverables(db, opportunity_id)
+        DeliverableRead.model_validate(d) for d in service.list_deliverables(db, opportunity_id)
     ]
 
 

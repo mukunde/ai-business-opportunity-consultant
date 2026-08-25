@@ -3,6 +3,9 @@
 [![English](https://img.shields.io/badge/English-6E6662?style=for-the-badge)](README.md)
 [![Français](https://img.shields.io/badge/Fran%C3%A7ais-8A1C34?style=for-the-badge)](README.fr.md)
 
+[![CI](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml/badge.svg)](https://github.com/mukunde/ai-business-opportunity-consultant/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Imaginez un consultant IA qui interroge vos équipes, comprend votre contexte
 métier, évalue les opportunités d'automatisation, et produit une recommandation
 structurée, prête à être mise en oeuvre.
