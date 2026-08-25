@@ -21,6 +21,34 @@ it. It is worth building when the context is complete enough to decide, and a
 human has decided. The system makes that context explicit, and keeps the human in
 the loop at every gate.
 
+## Product preview
+
+<table>
+<tr>
+<td width="46%" valign="top">
+
+<img src="docs/images/context-graph.png" alt="The context graph of one opportunity: facts, assumptions, unknowns, typed connections and tensions" />
+
+**The context graph.** What is known, assumed and still missing, plus the links
+the model infers between them. The tension at the bottom is the point: the user
+first said every request is unique, then that three quarters are identical. A
+context slot only keeps the latest value, so the conflict survives nowhere but
+the transcript. The system quotes both statements back.
+
+</td>
+<td width="54%" valign="top">
+
+<img src="docs/images/portfolio-quadrant.png" alt="The portfolio quadrant placing scored opportunities by impact and feasibility" />
+
+**The portfolio.** Qualified opportunities placed by impact and feasibility, so
+the argument stops being about who is loudest. Marker size carries the priority
+score, and opportunities landing on the same spot collapse into one badge rather
+than stacking. Quick Wins, Strategic Bets, Low Priority.
+
+</td>
+</tr>
+</table>
+
 ## Product demo
 
 🎥 **[End-to-end video walkthrough (Loom)](https://www.loom.com/share/f655345c29024669ac4d07ba077a6989)**:
