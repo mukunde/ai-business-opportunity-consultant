@@ -385,6 +385,7 @@ Implémenté :
 - [ADR 0005](docs/ADR/0005-on-demand-deliverables.md) livrables à la demande
 - [ADR 0006](docs/ADR/0006-human-review-decision.md) décision par revue humaine
 - [ADR 0007](docs/ADR/0007-data-readiness-assessed-not-presence.md) disponibilité des données évaluée, pas simplement présente
+- [ADR 0008](docs/ADR/0008-contradictions-from-the-transcript.md) contradictions cherchées dans le transcript
 
 ## Documents
 

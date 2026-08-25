@@ -125,6 +125,12 @@ class Contradiction(Base):
     # Logical references to nodes (no FK: contradictions outlive node rebuilds).
     node_a_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
     node_b_id: Mapped[uuid.UUID | None] = mapped_column(GUID(), nullable=True)
+    # Verbatim conflicting statements, for a tension found in the transcript
+    # rather than between two context nodes. A slot keeps one value, so a user
+    # who contradicts themselves overwrites it: the conflict only survives in
+    # what they actually said (ADR 0008).
+    claim_a: Mapped[str | None] = mapped_column(Text, nullable=True)
+    claim_b: Mapped[str | None] = mapped_column(Text, nullable=True)
     # The model's explanation of why the two elements conflict.
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[ContradictionStatus] = mapped_column(

@@ -619,6 +619,10 @@ export interface components {
             node_a_id: string | null;
             /** Node B Id */
             node_b_id: string | null;
+            /** Claim A */
+            claim_a: string | null;
+            /** Claim B */
+            claim_b: string | null;
             /** Description */
             description: string | null;
             status: components["schemas"]["ContradictionStatus"];
