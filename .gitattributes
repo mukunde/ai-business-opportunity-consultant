@@ -1,0 +1,18 @@
+# Normalise line endings so a checkout on one platform does not break the other.
+* text=auto eol=lf
+
+# Shell scripts must keep LF: a CRLF shebang fails on Linux with
+# "bad interpreter: /usr/bin/env bash^M".
+*.sh text eol=lf
+
+# PowerShell stays CRLF, its native convention on Windows.
+*.ps1 text eol=crlf
+
+# Binary assets are never converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
