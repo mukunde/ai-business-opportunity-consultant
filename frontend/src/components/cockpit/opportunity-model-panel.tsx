@@ -116,11 +116,21 @@ export function OpportunityModelPanel({
           <ul className="space-y-2.5 text-sm">
             {contradictions.map((c) => (
               <li key={c.id}>
-                <p className="font-medium">
-                  {labelOf(c.node_a_id)}
-                  <span className="text-muted-foreground"> {t("vs")} </span>
-                  {labelOf(c.node_b_id)}
-                </p>
+                {/* A tension found in the transcript quotes what was said, since
+                    no context node holds either statement. */}
+                {c.claim_a && c.claim_b ? (
+                  <p className="leading-snug">
+                    <span className="font-medium">{`“${c.claim_a}”`}</span>
+                    <span className="text-muted-foreground"> {t("vs")} </span>
+                    <span className="font-medium">{`“${c.claim_b}”`}</span>
+                  </p>
+                ) : (
+                  <p className="font-medium">
+                    {labelOf(c.node_a_id)}
+                    <span className="text-muted-foreground"> {t("vs")} </span>
+                    {labelOf(c.node_b_id)}
+                  </p>
+                )}
                 {c.description ? (
                   <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
                     {c.description}

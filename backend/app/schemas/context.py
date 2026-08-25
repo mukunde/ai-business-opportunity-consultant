@@ -47,6 +47,9 @@ class ContradictionRead(BaseModel):
     id: uuid.UUID
     node_a_id: uuid.UUID | None
     node_b_id: uuid.UUID | None
+    # Set instead of the node ids when the tension was found in the transcript.
+    claim_a: str | None
+    claim_b: str | None
     description: str | None
     status: ContradictionStatus
     resolution_note: str | None

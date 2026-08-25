@@ -161,13 +161,35 @@ def test_relationships_absent_before_completion(client: TestClient) -> None:
 class _ContradictingLLM:
     """Stub that flags the first two elements as conflicting (the FakeLLM never does)."""
 
-    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
+    def infer_relationships(
+        self, elements: list[ContextElement], transcript: str = ""
+    ) -> InferredGraph:
         return InferredGraph(
             contradictions=[
                 InferredContradiction(
                     node_a_key=elements[0].key,
                     node_b_key=elements[1].key,
                     explanation="3000/week cannot be handled in 5 minutes each.",
+                )
+            ]
+        )
+
+
+class _TranscriptContradictingLLM:
+    """Stub flagging a tension between two things said, with no node to anchor to."""
+
+    seen_transcript = ""
+
+    def infer_relationships(
+        self, elements: list[ContextElement], transcript: str = ""
+    ) -> InferredGraph:
+        type(self).seen_transcript = transcript
+        return InferredGraph(
+            contradictions=[
+                InferredContradiction(
+                    claim_a="Every request is unique.",
+                    claim_b="Three quarters of requests are identical.",
+                    explanation="The process cannot be both bespoke and highly repetitive.",
                 )
             ]
         )
@@ -199,3 +221,32 @@ def test_enrich_persists_contradiction_with_explanation(db_session: Session) -> 
     assert len(rows) == 1
     assert rows[0].description == "3000/week cannot be handled in 5 minutes each."
     assert rows[0].node_a_id is not None and rows[0].node_b_id is not None
+
+
+def test_enrich_detects_a_contradiction_that_only_exists_in_the_transcript(
+    client: TestClient, db_session: Session
+) -> None:
+    """A slot keeps one value, so a self-contradiction survives only in what was said."""
+    opp_id = _create_opportunity(client)
+    _start(client, opp_id)
+    for answer in ("3000 per week", "10 minutes each", "in Zendesk", "the support lead"):
+        client.post(f"/opportunities/{opp_id}/continue", json={"answer": answer})
+
+    opportunity_id = uuid.UUID(opp_id)
+    llm = _TranscriptContradictingLLM()
+    enrich_semantics(db_session, opportunity_id, llm)
+    db_session.flush()
+
+    # The interview reached the enrichment step with the conversation attached.
+    assert "3000 per week" in llm.seen_transcript
+
+    rows = list(
+        db_session.execute(
+            select(Contradiction).where(Contradiction.opportunity_id == opportunity_id)
+        ).scalars()
+    )
+    assert len(rows) == 1
+    assert rows[0].claim_a == "Every request is unique."
+    assert rows[0].claim_b == "Three quarters of requests are identical."
+    # Nothing in the structured context holds either statement, so no node anchors it.
+    assert rows[0].node_a_id is None and rows[0].node_b_id is None

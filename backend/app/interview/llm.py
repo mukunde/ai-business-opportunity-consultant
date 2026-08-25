@@ -71,10 +71,19 @@ class InferredRelationship(BaseModel):
 
 
 class InferredContradiction(BaseModel):
-    """A conflict the model detected between two elements, with its reasoning."""
+    """A conflict the model detected, with its reasoning.
 
-    node_a_key: str
-    node_b_key: str
+    A tension either sits between two context elements (the keys are set), or
+    between two things the user said in the interview (the claims are set). The
+    second case matters because a context slot holds a single value: a user who
+    contradicts themselves overwrites it, so the conflict only survives in the
+    transcript.
+    """
+
+    node_a_key: str = ""
+    node_b_key: str = ""
+    claim_a: str = ""
+    claim_b: str = ""
     explanation: str
 
 
@@ -126,8 +135,14 @@ class LLMClient(Protocol):
         """Synthesize the collected context into a structured opportunity."""
         ...
 
-    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
-        """Reason over the collected context: typed edges and contradictions."""
+    def infer_relationships(
+        self, elements: list[ContextElement], transcript: str = ""
+    ) -> InferredGraph:
+        """Reason over the collected context: typed edges and contradictions.
+
+        ``transcript`` is the interview as it was actually said, so tensions that
+        never reached a context slot can still be found.
+        """
         ...
 
     def extract_discovery(
@@ -216,7 +231,9 @@ class ClaudeClient:
         assert result is not None
         return result
 
-    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
+    def infer_relationships(
+        self, elements: list[ContextElement], transcript: str = ""
+    ) -> InferredGraph:
         rendered = "\n".join(
             f"- {e.key} [{e.kind}] {e.label}: {e.value or '(no value)'}" for e in elements
         )
@@ -225,6 +242,16 @@ class ClaudeClient:
             f"{rendered}\n\n"
             "Infer the semantic relationships and any contradictions between them."
         )
+        if transcript:
+            user = (
+                "Interview transcript, as it was actually said:\n"
+                f"{transcript}\n\n"
+                "Structured context elements (reference them by their key):\n"
+                f"{rendered}\n\n"
+                "Infer the semantic relationships between the elements, and any "
+                "contradictions, whether between elements or between statements "
+                "made in the transcript."
+            )
         response = self._client.messages.parse(
             model=self._model,
             max_tokens=1536,

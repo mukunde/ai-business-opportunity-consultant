@@ -372,6 +372,7 @@ Next:
 - [ADR 0005](docs/ADR/0005-on-demand-deliverables.md) on-demand deliverables
 - [ADR 0006](docs/ADR/0006-human-review-decision.md) human review decision
 - [ADR 0007](docs/ADR/0007-data-readiness-assessed-not-presence.md) data readiness assessed, not presence
+- [ADR 0008](docs/ADR/0008-contradictions-from-the-transcript.md) contradictions read from the transcript
 
 ## Documents
 

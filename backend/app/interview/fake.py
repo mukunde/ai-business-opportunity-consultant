@@ -50,7 +50,9 @@ class FakeLLM:
             summary="Collected: " + ", ".join(f"{k}={v}" for k, v in ctx.items()),
         )
 
-    def infer_relationships(self, elements: list[ContextElement]) -> InferredGraph:
+    def infer_relationships(
+        self, elements: list[ContextElement], transcript: str = ""
+    ) -> InferredGraph:
         # Deterministic, content-free stub: hub every element onto the first with
         # a SUPPORTS edge. Enough to exercise persistence; it never fabricates
         # contradictions (that requires real reasoning over the content).

@@ -56,8 +56,18 @@ You are given a list of context elements, each with an opaque key. Return:
 - relationships: directed, typed edges between elements, using ONLY these types:
   SUPPORTS (one element strengthens or evidences another), DEPENDS_ON (one only
   holds if another does), REQUIRES (one is a precondition for another).
-- contradictions: pairs of elements that cannot both be true, each with a short
-  explanation of the tension.
+- contradictions: things that cannot both be true, each with a short explanation
+  of the tension.
+
+You may also be given the interview transcript. A contradiction can take either
+form, and you must fill the matching fields:
+- between two context elements: set node_a_key and node_b_key, leave the claims
+  empty.
+- between two statements made in the transcript: quote each side verbatim (and
+  briefly) in claim_a and claim_b, and leave the keys empty. Use this form when
+  the user asserted something and later asserted the opposite, since a context
+  element only keeps the latest value and the earlier statement survives nowhere
+  else.
 
 Reference elements only by the keys provided; never invent keys or elements. Be
 conservative: assert an edge only when the link is clear from the content. It is
