@@ -219,7 +219,8 @@ ai-business-opportunity-consultant/
 │   │   ├── versioning/      instantanés d'opportunité
 │   │   ├── dashboard/       agrégation du portefeuille
 │   │   └── models/          modèles SQLAlchemy
-│   └── alembic/versions/    migrations 0001 à 0011
+│   ├── alembic/versions/    migrations 0001 à 0011
+│   └── tests/               78 tests, exécutés sur le stub LLM déterministe
 ├── frontend/                Next.js App Router, TanStack Query, shadcn/ui
 ├── docs/
 │   ├── ADR/                 décisions d'architecture
@@ -231,6 +232,7 @@ ai-business-opportunity-consultant/
 │   └── Implementation_Plan_v1.md
 ├── docker-compose.yml       Postgres local
 ├── start-demo.ps1           lancement de la stack locale en une commande (Windows)
+├── start-demo.sh            lancement de la stack locale en une commande (macOS, Linux)
 └── README.md
 ```
 
@@ -238,23 +240,25 @@ ai-business-opportunity-consultant/
 
 Prérequis : Docker Desktop, Python avec [uv](https://docs.astral.sh/uv/), Node.js.
 
-```powershell
+```bash
 # 1. Configurer le backend
 cd backend
 cp .env.example .env      # puis renseigner ANTHROPIC_API_KEY, ou LLM_PROVIDER=fake
 
 # 2. Tout démarrer (Postgres, migrations, API, frontend)
 cd ..
-./start-demo.ps1
+./start-demo.sh           # macOS, Linux
+./start-demo.ps1          # Windows, PowerShell
 ```
 
 Le script démarre Postgres, attend son health check, applique les migrations en
-attente, puis ouvre l'API et le frontend chacun dans sa fenêtre.
+attente, puis lance l'API et le frontend.
 
 - Frontend : http://localhost:3000
 - Documentation de l'API : http://localhost:8000/docs
 
-Options : `-NoFrontend` (base et API seulement), `-SkipMigrations`.
+Options : `--no-frontend` / `-NoFrontend` (base et API seulement),
+`--skip-migrations` / `-SkipMigrations`.
 
 ### Essayer la démo
 
@@ -287,6 +291,22 @@ workflow de triage n8n) puisse la joindre via `host.docker.internal:8000`. Une
 
 Mettre `LLM_PROVIDER=fake` pour dérouler tout le flux hors ligne sur un stub
 déterministe : sans clé, sans coût, et avec des tests reproductibles.
+
+## Tests
+
+La suite s'exécute entièrement sur le stub LLM déterministe : ni clé API, ni
+coût.
+
+```bash
+cd backend
+uv run pytest -q          # 79 tests
+uv run ruff check .
+uv run ruff format --check .
+```
+
+Elle couvre le coeur déterministe sur lequel repose la conception : l'analyse
+d'écart de contexte, l'idempotence de la projection, le moteur de scoring, et
+tout le cycle de vie, de l'opportunité au livrable, à travers l'API.
 
 ## Configuration
 
@@ -356,3 +376,7 @@ Implémenté :
 - [Appflow v1](docs/Appflow_v1.md)
 - [Backend Schema v1](docs/Backend_Schema_v1.md)
 - [Implementation Plan v1](docs/Implementation_Plan_v1.md)
+
+## Licence
+
+[MIT](LICENSE)
